@@ -161,11 +161,11 @@ jobs:
          cp ../111/boot.patch ./common/
          cd ./KernelSU-Next
          patch -p1 --forward < 10_enable_susfs_for_ksu.patch || true
-         patch -p1 --forward < fix_apk_sign.c.patch
-         patch -p1 --forward --fuzz=3 < fix_core_hook.c.patch
-         patch -p1 --forward < fix_rules.c.patch
-         patch -p1 --forward < fix_sucompat.c.patch
-         patch -p1 --forward < fix_kernel_compat.c.patch
+         patch -p1 --forward < fix_apk_sign.c.patch || true
+         patch -p1 --forward --fuzz=3 < fix_core_hook.c.patch || true
+         patch -p1 --forward < fix_rules.c.patch || true
+         patch -p1 --forward < fix_sucompat.c.patch || true
+         patch -p1 --forward < fix_kernel_compat.c.patch || true
          cd ../
          cd ./common/
          if [[ "${{ github.event.inputs.FEIL }}" == "oneplus_13" || "${{ github.event.inputs.FEIL }}" == "oneplus_ace5_pro" ]]; then
