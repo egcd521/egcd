@@ -183,10 +183,7 @@ jobs:
           patch -p1 -F 3 < 69_hide_stuff.patch || true
           patch -s -p1 -F 3 < boot.patch || true
           patch -p1 -F 3 --fuzz=5 < lz4_1.10.0.patch || true
-          echo "✅ SUSFS 和 scope_min_manual_hooks_v1.4 patch 应用完成"
-          # 修复next报错
-          sed -i '/^static inline int ksu_access_ok/,/^}/ s/^/\/\//' drivers/kernelsu/kernel_compat.c
-          
+          echo "✅ SUSFS 和 scope_min_manual_hooks_v1.4 patch 应用完成"         
           
       - name: Apply lz4kd Patches
         run: |
