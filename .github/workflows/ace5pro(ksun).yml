@@ -137,7 +137,7 @@ jobs:
          cp -r ../zzh_patch/zram/lz4/* ./common/lib/lz4/
          cp -r ../zzh_patch/zram/include/linux/* ./common/include/linux/
          cp -r ../zzh_patch/zram/${{ inputs.kernel_version }}/lz4_1.10.0.patch ./common/
-         cp -r ../kernel_patches/next/susfs_fix_patches/v1.5.9/ ./KernelSU-Next/
+         cp -r ../kernel_patches/next/susfs_fix_patches/v1.5.9/* ./KernelSU-Next/
          cd ./common
          for file in \
          "lib/lz4/lz4_compress.c" \
