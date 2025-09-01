@@ -162,9 +162,9 @@ jobs:
          cp ../111/boot.patch ./common/
          cd ./common
          PATCH_FILE=50_add_susfs_in_gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}.patch
-         if [[ -f "$PATCH_FILE" ]]; then
-         sed -i 's/-32,12 +32,38/-32,11 +32,37/g' "$PATCH_FILE"
-         sed -i '/#include <trace\/hooks\/fs.h>/d' "$PATCH_FILE"
+         #if [[ -f "$PATCH_FILE" ]]; then
+         #sed -i 's/-32,12 +32,38/-32,11 +32,37/g' "$PATCH_FILE"
+         #sed -i '/#include <trace\/hooks\/fs.h>/d' "$PATCH_FILE"
          patch -p1 < "$PATCH_FILE" || true
          fi
          cp ../../SukiSU_patch/hooks/syscall_hooks.patch ./
