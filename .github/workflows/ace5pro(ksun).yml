@@ -166,13 +166,15 @@ jobs:
          patch -p1 --fuzz=3 --forward < ksud.patch || true
          patch -p1 --fuzz=3 --forward < selinux.patch || true
          patch -p1 --fuzz=3 --forward < rules.c.patch || true
+         patch -p1 --fuzz=3 --forward < sucompat.c.patch || true
          patch -p1 --fuzz=3 --forward < kernel_compat.c.patch || true
+         patch -p1 --fuzz=3 --forward < min_scope_syscall_hooks_v1.4.patch || true
          cd ../
          cd ./common/
-         #if [[ "${{ github.event.inputs.FEIL }}" == "oneplus_13" || "${{ github.event.inputs.FEIL }}" == "oneplus_ace5_pro" ]]; then
+         if [[ "${{ github.event.inputs.FEIL }}" == "oneplus_13" || "${{ github.event.inputs.FEIL }}" == "oneplus_ace5_pro" ]]; then
            #sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch
            #sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch
-         #fi
+         fi
           patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
           # Replace next_hooks.patch with syscall_hooks.patch
           cp ../../kernel_patches/69_hide_stuff.patch ./
@@ -181,7 +183,7 @@ jobs:
           patch -p1 -F 3 < 69_hide_stuff.patch || true
           patch -s -p1 -F 3 < boot.patch || true
           patch -p1 -F 3 --fuzz=5 < lz4_1.10.0.patch || true
-          echo "✅ SUSFS 和 min_scope_syscall_hooks_v1.4 patch 应用完成"
+          echo "✅ SUSFS 和 scope_min_manual_hooks_v1.4 patch 应用完成"
           # 修复next报错
           sed -i '/^static inline int ksu_access_ok/,/^}/ s/^/\/\//' drivers/kernelsu/kernel_compat.c
           
