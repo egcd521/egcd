@@ -166,6 +166,7 @@ jobs:
          patch -p1 --fuzz=3 --forward < ksud.patch || true
          patch -p1 --fuzz=3 --forward < selinux.patch || true
          patch -p1 --fuzz=3 --forward < rules.c.patch || true
+         patch -p1 --fuzz=3 --forward < kernel_compat.c.patch || true
          cd ../
          cd ./common/
          #if [[ "${{ github.event.inputs.FEIL }}" == "oneplus_13" || "${{ github.event.inputs.FEIL }}" == "oneplus_ace5_pro" ]]; then
