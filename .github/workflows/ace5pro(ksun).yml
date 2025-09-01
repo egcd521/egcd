@@ -115,7 +115,7 @@ jobs:
       - name: Set up KernelSU Next
         run: |
           cd kernel_workspace/kernel_platform
-          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -s next
+          curl -LSs "https://github.com/pershoot/KernelSU-Next/blob/next-susfs/kernel/setup.sh" | bash -s next-susfs
           cd KernelSU-Next
           KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" 10200)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
@@ -161,13 +161,6 @@ jobs:
          cp ../111/boot.patch ./common/
          cd ./KernelSU-Next
          patch -p1 --forward --fuzz=3 < 10_enable_susfs_for_ksu.patch || true
-         patch -p1 --fuzz=3 --forward < apk_sign.patch || true
-         patch -p1 --fuzz=3 --forward < core_hook.patch || true
-         patch -p1 --fuzz=3 --forward < ksud.patch || true
-         patch -p1 --fuzz=3 --forward < selinux.patch || true
-         patch -p1 --fuzz=3 --forward < rules.c.patch || true
-         patch -p1 --fuzz=3 --forward < sucompat.c.patch || true
-         patch -p1 --fuzz=3 --forward < kernel_compat.c.patch || true
          patch -p1 --fuzz=3 --forward < min_scope_syscall_hooks_v1.4.patch || true
          cd ../
          cd ./common/
