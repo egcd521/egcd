@@ -178,7 +178,6 @@ jobs:
           patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
           # Replace next_hooks.patch with syscall_hooks.patch
           cp ../../kernel_patches/69_hide_stuff.patch ./
-          cp ../../kernel_patches/next/min_scope_syscall_hooks_v1.4.patch ./
           patch -p1 -F 3 < min_scope_syscall_hooks_v1.4.patch || true
           patch -p1 -F 3 < 69_hide_stuff.patch || true
           patch -s -p1 -F 3 < boot.patch || true
