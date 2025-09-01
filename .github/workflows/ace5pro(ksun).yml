@@ -161,7 +161,6 @@ jobs:
          cp ../111/boot.patch ./common/
          cd ./KernelSU-Next
          patch -p1 --forward --fuzz=3 < 10_enable_susfs_for_ksu.patch || true
-         patch -p1 --fuzz=3 --forward < min_scope_syscall_hooks_v1.4.patch || true
          cd ../
          cd ./common/
          #if [[ "${{ github.event.inputs.FEIL }}" == "oneplus_13" || "${{ github.event.inputs.FEIL }}" == "oneplus_ace5_pro" ]]; then
@@ -171,7 +170,8 @@ jobs:
           patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
           # Replace next_hooks.patch with syscall_hooks.patch
           cp ../../kernel_patches/69_hide_stuff.patch ./
-          patch -p1 -F 3 < min_scope_syscall_hooks_v1.4.patch || true
+          cp ../../kernel_patches/next/scope_min_manual_hooks_v1.4.patch ./
+          patch -p1 -F 3 < scope_min_manual_hooks_v1.4.patch || true
           patch -p1 -F 3 < 69_hide_stuff.patch || true
           patch -s -p1 -F 3 < boot.patch || true
           patch -p1 -F 3 --fuzz=5 < lz4_1.10.0.patch || true
