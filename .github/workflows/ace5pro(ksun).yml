@@ -162,11 +162,6 @@ jobs:
          cp -r ../SukiSU_patch/other/zram/lz4k/crypto/* ./common/crypto || true
          cp -r ../SukiSU_patch/other/zram/lz4k_oplus ./common/lib/ || true
          cp ../111/boot.patch ./common/
-         cd ./KernelSU-Next
-         patch -p1 --forward --fuzz=3 < 10_enable_susfs_for_ksu.patch || true
-         patch -p1 --fuzz=3 --forward < kernel_compat.c.patch || true
-         patch -p1 --fuzz=3 --forward < min_scope_syscall_hooks_v1.4.patch || true
-         cd ../
          cd ./common/
          if [[ "${{ github.event.inputs.FEIL }}" == "oneplus_13" || "${{ github.event.inputs.FEIL }}" == "oneplus_ace5_pro" ]]; then
            #sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch
