@@ -178,12 +178,12 @@ jobs:
           patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
           # Replace next_hooks.patch with syscall_hooks.patch
           cp ../../kernel_patches/69_hide_stuff.patch ./
-          cp ../../kernel_patches/next/scope_min_manual_hooks_v1.4.patch ./
-          patch -p1 -F 3 < scope_min_manual_hooks_v1.4.patch || true
+          cp ../../kernel_patches/next/min_scope_syscall_hooks_v1.4.patch ./
+          patch -p1 -F 3 < min_scope_syscall_hooks_v1.4.patch || true
           patch -p1 -F 3 < 69_hide_stuff.patch || true
           patch -s -p1 -F 3 < boot.patch || true
           patch -p1 -F 3 --fuzz=5 < lz4_1.10.0.patch || true
-          echo "✅ SUSFS 和 scope_min_manual_hooks_v1.4 patch 应用完成"
+          echo "✅ SUSFS 和 min_scope_syscall_hooks_v1.4 patch 应用完成"
           # 修复next报错
           sed -i '/^static inline int ksu_access_ok/,/^}/ s/^/\/\//' drivers/kernelsu/kernel_compat.c
           
