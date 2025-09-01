@@ -33,9 +33,9 @@ on:
         default: false
         type: boolean
       kernel_time:
-        description: '内核构建时间（UTC 时间字符串，例如 "Tue Dec 17 23:36:49 UTC 2024"）'
+        description: '内核构建时间（UTC 时间字符串，例如 "Mon May 12 09:09:59 UTC 2025"）'
         required: false
-        default: 'Tue Dec 17 23:36:49 UTC 2024'
+        default: 'Mon May 12 09:09:59 UTC 2025'
         type: string
 jobs:
   build:
@@ -252,7 +252,7 @@ jobs:
 
       - name: Set build timestamp
         run: |         
-         export SOURCE_DATE_EPOCH=$(date -d "Tue Dec 17 23:36:49 UTC 2024" +%s)
+         export SOURCE_DATE_EPOCH=$(date -d "Mon May 12 09:09:59 UTC 2025" +%s)
          echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" >> $GITHUB_ENV
    
       - name: Build Kernel
