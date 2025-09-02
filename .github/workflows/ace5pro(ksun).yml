@@ -1,4 +1,4 @@
-name: ace5pro加入kpm可选(主工作流ksun)
+name: ace5pro(ksun)
 on:
   workflow_dispatch:
     inputs:
