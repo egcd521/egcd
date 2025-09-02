@@ -1,4 +1,4 @@
-name: ace5pro(娱乐自定义内核版本）
+name: ace5pro(自定义内核版本）
 on:
   workflow_dispatch:
     inputs:
