@@ -35,7 +35,7 @@ on:
       kernel_time:
         description: '内核构建时间（UTC 时间字符串，例如 "Mon May 12 09:09:59 UTC 2025"）'
         required: false
-        default: 'Mon May 12 09:09:59 UTC 2025'
+        default: 'Tue Jul  1 19:48:18 UTC 2025'
         type: string
 jobs:
   build:
@@ -252,7 +252,7 @@ jobs:
 
       - name: Set build timestamp
         run: |         
-         export SOURCE_DATE_EPOCH=$(date -d "Mon May 12 09:09:59 UTC 2025" +%s)
+         export SOURCE_DATE_EPOCH=$(date -d "Tue Jul  1 19:48:18 UTC 2025" +%s)
          echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" >> $GITHUB_ENV
    
       - name: Build Kernel
@@ -263,7 +263,7 @@ jobs:
          export PATH="/usr/lib/ccache:$PATH" 
 
          # 设置固定内核构建时间
-         export KERNEL_TIME="Mon May 12 09:09:59 UTC 2025"
+         export KERNEL_TIME="Tue Jul  1 19:48:18 UTC 2025"
          export KBUILD_BUILD_TIMESTAMP="$KERNEL_TIME"
          export SOURCE_DATE_EPOCH=$(date -d "$KERNEL_TIME" +%s)
          # 设置 AFDO 配置文件路径
