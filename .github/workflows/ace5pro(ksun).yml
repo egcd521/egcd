@@ -128,17 +128,17 @@ jobs:
           KSU_VERSION=$(expr $(curl -sI "https://api.github.com/repos/KernelSU-Next/KernelSU-Next/commits?sha=next&per_page=1" | grep -i "link:" | sed -n 's/.*page=\([0-9]*\)>; rel="last".*/\1/p') "+" 10200)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
           sed -i "s/DKSU_VERSION=11998/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
-          # 获取最近的 tag (例: v1.1.1) 
-          TAG=$(git describe --tags --abbrev=0 2>
-          echo "v0.0.0") 
-          # 拼接 tag+后缀（后缀从 Export suffix 步骤注入） 
-          CUSTOM_TAG="${TAG}${TAG_SUFFIX}" 
-          echo "KSUTAG=$CUSTOM_TAG" >> $GITHUB_ENV 
-          # 替换 Makefile 里的默认 
-          DKSU_VERSION_TAG sed -i "s/DKSU_VERSION_TAG=\\\"v0.0.0\\\"/DKSU_VERSION_TAG=\\\"${CUSTOM_TAG}\\\"/" kernel/Makefile 
-          # 打印确认 
+          # 获取最近的 tag (例: v1.1.1)
+          TAG=$(git describe --tags --abbrev=0
+          echo "v0.0.0")
+          # 拼接 tag+后缀（后缀从 Export suffix 步骤注入)
+          CUSTOM_TAG="${TAG}${TAG_SUFFIX}"
+          echo "KSUTAG=$CUSTOM_TAG" >> $GITHUB_ENV
+          # 替换 Makefile 里的默认
+          DKSU_VERSION_TAG sed -i "s/DKSU_VERSION_TAG=\\\"v0.0.0\\\"/DKSU_VERSION_TAG=\\\"${CUSTOM_TAG}\\\"/" kernel/Makefile
+          # 打印确认
           echo "👉 KernelSU-Next Tag = ${CUSTOM_TAG}"
-
+          
       - name: Set up SUSFS & apply patches
         run: |
          set -e
