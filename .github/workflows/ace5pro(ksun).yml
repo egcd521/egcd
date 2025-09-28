@@ -40,7 +40,7 @@ on:
       KernelSU_Nex_tag:
         description: "自定义版本来源后缀（如:见清）"
         required: false
-        default: "见清🤣👉🏻🤡"
+        default: "-见清🤣👉🏻🤡"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -152,8 +152,8 @@ jobs:
           } >> $GITHUB_ENV
 
           # 替换 Makefile 里的默认 DKSU_VERSION_TAG
-          sed -i "s/DKSU_VERSION_TAG=\\\"v0.0.0\\\"/DKSU_VERSION_TAG=\\\"${CUSTOM_TAG}\\\"/" kernel/Makefile
-
+          sed -i "s|^\s*KSU_VERSION_TAG :=.*|KSU_VERSION_TAG := ${CUSTOM_TAG}|" kernel/Makefile
+          
           # 打印确认
           echo "👉 KernelSU-Next Tag = ${CUSTOM_TAG}"
           
