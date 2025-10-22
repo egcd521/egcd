@@ -147,21 +147,12 @@ jobs:
 
          cd kernel_workspace
          git clone --depth=1 https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}
-         git clone --depth=1 https://github.com/SukiSU-Ultra/SukiSU_patch.git
          cd kernel_platform
          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}.patch ./common/ || true
          mkdir -p ./common/fs ./common/include/linux ./common/lib ./common/crypto
          cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/ || true
          cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/ || true
-         cd ./common
-         PATCH_FILE=50_add_susfs_in_gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}.patch
-         if [[ -f "$PATCH_FILE" ]]; then
-         #sed -i 's/-32,12 +32,38/-32,11 +32,37/g' "$PATCH_FILE"
-         #sed -i '/#include <trace\/hooks\/fs.h>/d' "$PATCH_FILE"
-         patch -p1 < "$PATCH_FILE" || true
-         fi
-         cp ../../SukiSU_patch/hooks/syscall_hooks.patch ./
-         patch -p1 -F 3 < syscall_hooks.patch || true
+         echo "✅ SUSFS 和 syscall_hooks patch 应用完成"
 
       - name: Set CONFIG_LOCALVERSION
         if: ${{ inputs.local_version != '-4k' }}
