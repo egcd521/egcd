@@ -162,7 +162,6 @@ jobs:
          fi
          cp ../../SukiSU_patch/hooks/syscall_hooks.patch ./
          patch -p1 -F 3 < syscall_hooks.patch || true
-         patch -s -p1 -F 3 < boot.patch
          echo "✅ SUSFS 和 syscall_hooks patch 应用完成"
 
       - name: Set CONFIG_LOCALVERSION
