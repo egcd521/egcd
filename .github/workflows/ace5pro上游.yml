@@ -25,7 +25,7 @@ on:
       KERNEL_NAME:
         description: "修改内核名称"
         required: true
-        default: '-android15-8-g013ec21bba94-abogki383916444'
+        default: '-android15-8-g29d86c5fc9dd-abogki428889875'
       ENABLE_KPM:
         description: "启用kpm"
         required: false
@@ -235,14 +235,19 @@ jobs:
             
       - name: Set build timestamp
         run: |         
-         export SOURCE_DATE_EPOCH=$(date -d "Tue Dec 17 23:36:49 UTC 2024" +%s)
+         export SOURCE_DATE_EPOCH=$(date -d "Tue Jul 1 19:48:18 UTC 2025" +%s)
          echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" >> $GITHUB_ENV
 
       - name: 拉取afdo
         run: |
           cd kernel_workspace/kernel_platform/
-          git clone https://github.com/egcd521/egcd.git
-
+          git clone https://github.com/egcd521/afdo.git
+            
+      - name: Set build timestamp
+        run: |         
+         export SOURCE_DATE_EPOCH=$(date -d "Tue Jul  1 19:48:18 UTC 2025" +%s)
+         echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" >> $GITHUB_ENV
+         
       - name: Build Kernel
         run: |
          # 加入 clang 到 PATH
