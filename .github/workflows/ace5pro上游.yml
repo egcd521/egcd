@@ -212,31 +212,22 @@ jobs:
          cd common
          git add -A && git commit -a -m "BUILD Kernel"
 
-      - name: 修改内核版本拼接逻辑为占位符（scm_version）
+      - name: Add make name
         run: |
          cd kernel_workspace/kernel_platform
-         sed -i '186s|echo ".*"|echo "${KERNELVERSION}${scm_version}${config_localversion}"|' ./common/scripts/setlocalversion
-
-      - name: 替换 scm_version 为 KERNEL_NAME
-        run: |
-         cd kernel_workspace/kernel_platform
-         sed -i "s|\${scm_version}|${{ github.event.inputs.KERNEL_NAME }}|g" ./common/scripts/setlocalversion
+         sed -i '208s|echo ".*"|echo "${KERNELVERSION}${scm_version}${config_localversion}"|' common/scripts/setlocalversion
+         sed -i "s/\${scm_version}/${{ github.event.inputs.KERNEL_NAME }}/g" ./common/scripts/setlocalversion
          
       - name: 设置 CONFIG_LOCALVERSION
         run: |
          cd kernel_workspace/kernel_platform
          echo 'CONFIG_LOCALVERSION="${{ github.event.inputs.local_version }}"' >> ./common/arch/arm64/configs/gki_defconfig
-         
+
       - name: 删除 CONFIG_LOCALVERSION 中的 -4k 后缀（如果勾选）
         if: ${{ fromJSON(github.event.inputs.remove_default_4k) }}
         run: |
          cd kernel_workspace/kernel_platform
          sed -i 's/-4k//' ./common/arch/arm64/configs/gki_defconfig
-            
-      - name: Set build timestamp
-        run: |         
-         export SOURCE_DATE_EPOCH=$(date -d "Tue Jul 1 19:48:18 UTC 2025" +%s)
-         echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" >> $GITHUB_ENV
 
       - name: 拉取afdo
         run: |
