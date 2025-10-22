@@ -153,10 +153,6 @@ jobs:
          mkdir -p ./common/fs ./common/include/linux ./common/lib ./common/crypto
          cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/ || true
          cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/ || true
-         cp -r ../SukiSU_patch/other/zram/lz4k/include/linux/* ./common/include/linux || true
-         cp -r ../SukiSU_patch/other/zram/lz4k/lib/* ./common/lib || true
-         cp -r ../SukiSU_patch/other/zram/lz4k/crypto/* ./common/crypto || true
-         cp -r ../SukiSU_patch/other/zram/lz4k_oplus ./common/lib/ || true
          cd ./common
          PATCH_FILE=50_add_susfs_in_gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}.patch
          if [[ -f "$PATCH_FILE" ]]; then
@@ -240,15 +236,10 @@ jobs:
         run: |
          cd kernel_workspace/kernel_platform
          sed -i 's/-4k//' ./common/arch/arm64/configs/gki_defconfig
-
-      - name: 拉取afdo
-        run: |
-          cd kernel_workspace/kernel_platform/
-          git clone https://github.com/egcd521/afdo.git
             
       - name: Set build timestamp
         run: |         
-         export SOURCE_DATE_EPOCH=$(date -d "Tue Jul  1 19:48:18 UTC 2025" +%s)
+         export SOURCE_DATE_EPOCH=$(date -d "Tue Jul 1 19:48:18 UTC 2025" +%s)
          echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" >> $GITHUB_ENV
          
       - name: Build Kernel
@@ -257,40 +248,29 @@ jobs:
          export PATH="${{ github.workspace }}/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
          # 加入 ccache 到 PATH
          export PATH="/usr/lib/ccache:$PATH" 
-
          # 设置固定内核构建时间
-         export BUILD_VERSION=1
-         export KERNEL_TIME="Tue Jul  1 19:48:18 UTC 2025"
+         export KERNEL_TIME="Tue Jul 1 19:48:18 UTC 2025"
          export KBUILD_BUILD_TIMESTAMP="$KERNEL_TIME"
          export SOURCE_DATE_EPOCH=$(date -d "$KERNEL_TIME" +%s)
-         # 设置 AFDO 配置文件路径
-         export AFDO_PROFILE="${{ github.workspace }}/kernel_workspace/kernel_platform/afdo/kernel.afdo"
-         if [ ! -f "$AFDO_PROFILE" ]; then
-           echo "Error: AFDO profile not found at $AFDO_PROFILE"
-         exit 1
-         fi
-
          # 打印验证
          echo "KERNEL_TIME = $KERNEL_TIME"
          echo "SOURCE_DATE_EPOCH = $SOURCE_DATE_EPOCH"
-         echo "Using KCFLAGS: -Wno-error -fauto-profile=$AFDO_PROFILE"
-
-         # 设置一些通用参数（便于后续维护）
-         export KCFLAGS="-Wno-error -fauto-profile=$AFDO_PROFILE"
+         # 设置基础构建参数
          export MAKE_ARGS="LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
          RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
          PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
          LD=ld.lld HOSTLD=ld.lld O=out SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}"
-
+         echo "Using SOURCE_DATE_EPOCH: $SOURCE_DATE_EPOCH"
          # 进入源码目录
          cd kernel_workspace/kernel_platform/common
-
          # 执行 defconfig
          make -j$(nproc) $MAKE_ARGS gki_defconfig
-
-         # 编译全部目标
-         make -j$(nproc) $MAKE_ARGS all
-
+         # 编译内核（使用 -O2 优化，关闭 warning->error）
+         KBUILD_CFLAGS='-O2' KCFLAGS='-Wno-error' make -j$(nproc) $MAKE_ARGS all
+         echo "Checking compiled optimization level:"
+         find out/ -name '*.cmd' | xargs grep -- '-O' | grep -v 'O2' | head
+         echo "Checking if ThinLTO was applied:"
+         find out/ -name '*.cmd' | xargs grep -E '\-flto(=thin)?' | head
          # 创建输出目录并复制 Image
          mkdir -p ../dist
          cp out/arch/arm64/boot/Image ../dist/
