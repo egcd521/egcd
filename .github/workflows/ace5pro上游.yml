@@ -135,7 +135,7 @@ jobs:
          # 使用正确变量名 KSU_VERSION_API 替换函数体
          sed -i "/^define get_ksu_version_full$/,/^endef$/c\
          define get_ksu_version_full\\
-         v\$(KSU_VERSION_API)-sukisu-\$(KSU_VERSION)-by-$TAG_SUFFIX\\
+         v\$(KSU_VERSION_API)-sukisu-\$(KSU_VERSION)-by-${TAG_SUFFIX}\\
          endef" kernel/Makefile
          echo "✅ Injected custom version: v\$(KSU_VERSION_API)-sukisu-\$(KSU_VERSION)-by-$TAG_SUFFIX"
          KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10700)
@@ -251,26 +251,29 @@ jobs:
          export PATH="/usr/lib/ccache:$PATH" 
 
          # 设置固定内核构建时间
-         export KERNEL_TIME="Tue Dec 17 23:36:49 UTC 2024"
+         export BUILD_VERSION=1
+         export KERNEL_TIME="Tue Jul  1 19:48:18 UTC 2025"
          export KBUILD_BUILD_TIMESTAMP="$KERNEL_TIME"
          export SOURCE_DATE_EPOCH=$(date -d "$KERNEL_TIME" +%s)
          # 设置 AFDO 配置文件路径
-         export AFDO_PROFILE="${{ github.workspace }}/kernel_workspace/kernel_platform/egcd/kernel.afdo"
+         export AFDO_PROFILE="${{ github.workspace }}/kernel_workspace/kernel_platform/afdo/kernel.afdo"
          if [ ! -f "$AFDO_PROFILE" ]; then
            echo "Error: AFDO profile not found at $AFDO_PROFILE"
          exit 1
          fi
+
          # 打印验证
          echo "KERNEL_TIME = $KERNEL_TIME"
          echo "SOURCE_DATE_EPOCH = $SOURCE_DATE_EPOCH"
          echo "Using KCFLAGS: -Wno-error -fauto-profile=$AFDO_PROFILE"
+
          # 设置一些通用参数（便于后续维护）
          export KCFLAGS="-Wno-error -fauto-profile=$AFDO_PROFILE"
          export MAKE_ARGS="LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
          RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
          PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
          LD=ld.lld HOSTLD=ld.lld O=out SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}"
-         
+
          # 进入源码目录
          cd kernel_workspace/kernel_platform/common
 
@@ -283,7 +286,6 @@ jobs:
          # 创建输出目录并复制 Image
          mkdir -p ../dist
          cp out/arch/arm64/boot/Image ../dist/
-         cp out/vmlinux ../dist/
 
       - name: 打kpm补丁
         if: ${{ fromJSON(github.event.inputs.ENABLE_KPM) }}
