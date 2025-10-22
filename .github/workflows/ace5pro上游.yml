@@ -240,38 +240,10 @@ jobs:
          export SOURCE_DATE_EPOCH=$(date -d "Tue Jul 1 19:48:18 UTC 2025" +%s)
          echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" >> $GITHUB_ENV
          
-      - name: Build Kernel
+      - name: Build kernel
         run: |
-         # 加入 clang 到 PATH
-         export PATH="${{ github.workspace }}/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
-         # 加入 ccache 到 PATH
-         export PATH="/usr/lib/ccache:$PATH" 
-         # 设置固定内核构建时间
-         export KERNEL_TIME="Tue Jul 1 19:48:18 UTC 2025"
-         export KBUILD_BUILD_TIMESTAMP="$KERNEL_TIME"
-         export SOURCE_DATE_EPOCH=$(date -d "$KERNEL_TIME" +%s)
-         # 打印验证
-         echo "KERNEL_TIME = $KERNEL_TIME"
-         echo "SOURCE_DATE_EPOCH = $SOURCE_DATE_EPOCH"
-         # 设置基础构建参数
-         export MAKE_ARGS="LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
-         RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
-         PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
-         LD=ld.lld HOSTLD=ld.lld O=out SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}"
-         echo "Using SOURCE_DATE_EPOCH: $SOURCE_DATE_EPOCH"
-         # 进入源码目录
-         cd kernel_workspace/kernel_platform/common
-         # 执行 defconfig
-         make -j$(nproc) $MAKE_ARGS gki_defconfig
-         # 编译内核（使用 -O2 优化，关闭 warning->error）
-         KBUILD_CFLAGS='-O2' KCFLAGS='-Wno-error' make -j$(nproc) $MAKE_ARGS all
-         echo "Checking compiled optimization level:"
-         find out/ -name '*.cmd' | xargs grep -- '-O' | grep -v 'O2' | head
-         echo "Checking if ThinLTO was applied:"
-         find out/ -name '*.cmd' | xargs grep -E '\-flto(=thin)?' | head
-         # 创建输出目录并复制 Image
-         mkdir -p ../dist
-         cp out/arch/arm64/boot/Image ../dist/
+         cd kernel_workspace/kernel_platform
+         tools/bazel run --config=fast --config=stamp --lto=thin //common:kernel_aarch64_dist -- --dist_dir=dist
 
       - name: 打kpm补丁
         if: ${{ fromJSON(github.event.inputs.ENABLE_KPM) }}
