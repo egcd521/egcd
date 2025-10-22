@@ -160,24 +160,12 @@ jobs:
          cd ./common
          PATCH_FILE=50_add_susfs_in_gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}.patch
          if [[ -f "$PATCH_FILE" ]]; then
-         sed -i 's/-32,12 +32,38/-32,11 +32,37/g' "$PATCH_FILE"
-         sed -i '/#include <trace\/hooks\/fs.h>/d' "$PATCH_FILE"
+         #sed -i 's/-32,12 +32,38/-32,11 +32,37/g' "$PATCH_FILE"
+         #sed -i '/#include <trace\/hooks\/fs.h>/d' "$PATCH_FILE"
          patch -p1 < "$PATCH_FILE" || true
          fi
          cp ../../SukiSU_patch/hooks/syscall_hooks.patch ./
          patch -p1 -F 3 < syscall_hooks.patch || true
-
-      - name: Apply lz4kd Patches
-        run: |
-         set -e
-         cd kernel_workspace/kernel_platform/common
-         PATCH_FILE=../../SukiSU_patch/other/zram/zram_patch/${{ inputs.KERNEL_VERSION }}/lz4kd.patch
-         if [[ -f "$PATCH_FILE" ]]; then
-         cp "$PATCH_FILE" ./lz4kd.patch
-         patch -p1 -F 3 < lz4kd.patch || true
-         else
-         echo "❗ lz4kd patch not found for kernel version ${{ inputs.KERNEL_VERSION }}"
-         fi
 
       - name: Set CONFIG_LOCALVERSION
         if: ${{ inputs.local_version != '-4k' }}
@@ -225,7 +213,7 @@ jobs:
           # 提交更改（可选）
           cd common
           git add -A
-          git commit -a -m "BUILD Kernel with Polly, KSU, SUSFS and compression configs"
+          git commit -a -m "BUILD Kernel with Polly, BBR, KSU, SUSFS and compression configs"
           
       - name: 启用kpm
         if: ${{ fromJSON(github.event.inputs.ENABLE_KPM) }}
