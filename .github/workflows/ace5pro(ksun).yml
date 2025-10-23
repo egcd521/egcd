@@ -182,19 +182,21 @@ jobs:
          $(info -- Custom KernelSU Manager signature hash: $(KSU_CUSTOM_MANAGER_HASH))
          EOF
 
-         echo "✅ 已注入自定义签名到 Makefile
+         echo "✅ 已注入自定义签名到 Makefile"
+
          # --- Patch apk_sign.c 以支持多管理器 ---
          APK_FILE="kernel/apk_sign.c"
 
          # 仅在未添加过时才插入
          if ! grep -q "CUSTOM_MANAGER_HASH" "$APK_FILE"; then
-          echo "🛠️ Patch apk_sign.c 启用多管理器校验..."
-          sed -i '/return check_v2_signature(path, expected_manager_size, expected_manager_hash);/a \
-          \n\t// 检查官方 KernelSU Manager 签名\n\tif (check_v2_signature(path, expected_manager_size, expected_manager_hash))\n\t\treturn true;\n\n#ifdef CUSTOM_MANAGER_HASH\n\t// 检查自定义 Manager（例如 SukiSU Manager）\n\tpr_info("%s: checking custom manager, size: 0x%x, hash: %s\\n",\n\t\tpath, CUSTOM_MANAGER_SIZE, CUSTOM_MANAGER_HASH);\n\tif (check_v2_signature(path, CUSTOM_MANAGER_SIZE, CUSTOM_MANAGER_HASH))\n\t\treturn true;\n#endif\n\n\treturn false;' "$APK_FILE"
-          else
-          echo "⚠️ apk_sign.c 已启用多管理器支持，跳过重复修改。"
-          fi
-          echo "✅ Multi-Manager patch applied successfully."
+         echo "🛠️ Patch apk_sign.c 启用多管理器校验..."
+         sed -i '/return check_v2_signature(path, expected_manager_size, expected_manager_hash);/a \
+         \n\t// 检查官方 KernelSU Manager 签名\n\tif (check_v2_signature(path, expected_manager_size, expected_manager_hash))\n\t\treturn true;\n\n#ifdef CUSTOM_MANAGER_HASH\n\t// 检查自定义 Manager（例如 SukiSU Manager）\n\tpr_info("%s: checking custom manager, size: 0x%x, hash: %s\\n",\n\t\tpath, CUSTOM_MANAGER_SIZE, CUSTOM_MANAGER_HASH);\n\tif (check_v2_signature(path, CUSTOM_MANAGER_SIZE, CUSTOM_MANAGER_HASH))\n\t\treturn true;\n#endif\n\n\treturn false;' "$APK_FILE"
+         else
+         echo "⚠️ apk_sign.c 已启用多管理器支持，跳过重复修改。"
+         fi
+
+         echo "✅ Multi-Manager patch applied successfully."
           
       - name: Set up SUSFS & apply patches
         run: |
