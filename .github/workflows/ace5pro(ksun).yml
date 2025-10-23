@@ -164,7 +164,8 @@ jobs:
 
          # 进入 KernelSU 源码目录（根据你的路径修改）
          ls
-         cd kernel_workspace/kernel_platform/KernelSU-Next/kernel
+         cd kernel_workspace/kernel_platform
+         cd KernelSU-Next/kernel
 
          # --- 添加自定义管理器签名到 Makefile ---
          cat >> Makefile <<'EOF'
