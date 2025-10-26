@@ -37,10 +37,6 @@ on:
         required: false
         default: 'Tue Jul  1 19:48:18 UTC 2025'
         type: string
-      KernelSU_Nex_tag:
-        description: "自定义版本来源后缀（如:见清）"
-        required: false
-        default: "-by-见清🤣👉🏻🤡"
 jobs:
   build:
     runs-on: ubuntu-latest
