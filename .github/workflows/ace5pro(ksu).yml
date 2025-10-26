@@ -170,7 +170,6 @@ jobs:
           # Replace next_hooks.patch with syscall_hooks.patch
           cp ../../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./
           patch -p1 --forward < 10_enable_susfs_for_ksu.patch
-          patch -p1 --fuzz=3 < scope_min_manual_hooks_v1.4.patch
           patch -s -p1 -F 3 < boot.patch || true
           patch -p1 -F 3 --fuzz=5 < lz4_1.10.0.patch || true
           echo "✅ SUSFS 和 scope_min_manual_hooks_v1.4 patch 应用完成"         
