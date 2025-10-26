@@ -136,7 +136,6 @@ jobs:
          cp ../kernel_patches/next/scope_min_manual_hooks_v1.4.patch ./common/
          cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
          cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
-         cp ../zzh_patch/next-patch/* ./KernelSU-Next/
          cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
          cp -r ../zzh_patch/zram/lz4/* ./common/lib/lz4/
          cp -r ../zzh_patch/zram/include/linux/* ./common/include/linux/
