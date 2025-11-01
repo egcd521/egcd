@@ -115,11 +115,6 @@ jobs:
          repo --trace sync -c -j$(nproc --all) --no-tags
          rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
          rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
-         cd kernel_workspace/kernel_platform
-         cd ./common
-         git reset --hard c7bef25f9416d6a0f87ce551be9c25729f7dae6c
-         git rev-parse HEAD
-         cd ../
 
       - name: Export suffix
         run: |
@@ -128,6 +123,10 @@ jobs:
       - name: Setup KernelSU-Next
         run: |
           cd kernel_workspace/kernel_platform
+          cd ./common
+          git reset --hard c7bef25f9416d6a0f87ce551be9c25729f7dae6c
+          git rev-parse HEAD
+          cd ../
           curl -LSs "https://raw.githubusercontent.com/pershoot/KernelSU-Next/next-susfs/kernel/setup.sh" | bash -s next-susfs
           cd KernelSU-Next
 
