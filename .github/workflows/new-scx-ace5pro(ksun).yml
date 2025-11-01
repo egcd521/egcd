@@ -115,8 +115,6 @@ jobs:
          repo --trace sync -c -j$(nproc --all) --no-tags
          rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
          rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
-         git rev-parse HEAD
-         git reset --hard c7bef25f9416d6a0f87ce551be9c25729f7dae6c
 
       - name: Export suffix
         run: |
