@@ -78,7 +78,8 @@ jobs:
       - name: Install Dependencies  
         run: |  
          sudo apt-get update  
-         sudo apt-get install -y python3 git curl ccache libelf-dev  
+         sudo apt-get install -y python3 git curl ccache libelf-dev
+         sudo apt-get install -y dos2unix
 
       # 3. 恢复 ccache 缓存  
       - name: Restore ccache
