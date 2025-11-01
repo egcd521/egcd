@@ -260,12 +260,25 @@ jobs:
          sed -i 's/-4k//' ./common/arch/arm64/configs/gki_defconfig
     
       - name: 拉取并集成 sched_ext 调度器
+        env:
+         FILE: ${{ github.event.inputs.FEIL }}
+         CPU: ${{ github.event.inputs.CPU }}  # 👈 确保你在 inputs 里定义了 CPU
         run: |
-         cd kernel_workspace/kernel_platform/
-         git clone https://github.com/egcd123/sched_ext.git
-         cp -r ./sched_ext/* ./common/kernel/sched
-         rm -rf ./sched_ext/.git
-
+         set -e
+         cd kernel_workspace/kernel_platform/common
+         git clone https://github.com/Numbersf/SCHED_PATCH.git -b "$CPU"
+         echo "正在拉取风驰补丁"
+         cp "./SCHED_PATCH/fengchi_${FEIL}.patch" ./
+         if [[ -f "fengchi_${FEIL}.patch" ]]; then
+         echo "正在打风驰补丁"
+         dos2unix "fengchi_${FEIL}.patch"
+         patch -p1 -F 3 < "fengchi_${FEIL}.patch"
+         echo "✅ fengchi_patch 完成"
+         else
+         echo "❌ 未匹配到补丁，风驰内核暂未支持你的机型，请关闭后重试"
+         exit 11
+         fi
+         
       - name: 拉取afdo
         run: |
           cd kernel_workspace/kernel_platform/
