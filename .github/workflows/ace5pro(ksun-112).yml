@@ -282,10 +282,24 @@ jobs:
    
       - name: Build Kernel
         run: |
-         # 加入 clang 到 PATH
-         export PATH="${{ github.workspace }}/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
+         # 工作目录进入 kernel_workspace
+         cd ${{ github.workspace }}/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86
+         echo "🧹 清理旧版本 Clang..."
+         rm -rf clang-* || true
+         echo "⬇️ 下载 Clang 19.0.0git..."
+         wget -q https://github.com/ZyCromerZ/Clang/releases/download/19.0.0git-20240723-release/Clang-19.0.0git-20240723.tar.gz
+         echo "📦 解压中..."
+         tar -xvf Clang-19.0.0git-20240723.tar.gz
+         echo "✅ Clang 已解压完成"
+         # 加入 Clang 到 PATH
+         export PATH="${{ github.workspace }}/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-19.0.0git-20240723/bin:$PATH"
          # 加入 ccache 到 PATH
-         export PATH="/usr/lib/ccache:$PATH" 
+         export PATH="/usr/lib/ccache:$PATH"
+         # 验证 Clang 版本
+         echo "🔍 当前 Clang 版本："
+         clang --version
+         # 开始构建内核
+         echo "🚀 开始编译内核...”
 
          # 设置固定内核构建时间
          export KERNEL_TIME="Tue Jul  1 19:48:18 UTC 2025"
