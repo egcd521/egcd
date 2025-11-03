@@ -280,10 +280,6 @@ jobs:
          export PATH="/usr/lib/ccache:$PATH"
          # 验证 Clang 版本
          echo "🔍 当前 Clang 版本："
-         clang --version
-         # 开始构建内核
-         echo "🚀 开始编译内核...”
-
          # 设置固定内核构建时间
          export KERNEL_TIME="Tue Jul  1 19:48:18 UTC 2025"
          export KBUILD_BUILD_TIMESTAMP="$KERNEL_TIME"
