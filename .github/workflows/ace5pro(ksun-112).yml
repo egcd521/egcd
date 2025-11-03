@@ -298,7 +298,7 @@ jobs:
          echo "✅ Clang 环境配置完成"
 
          # 回到源码目录
-         cd ../../../../ || { echo "❌ 源码目录不存在"; exit 1; }
+         cd /home/runner/work/egcd/egcd/kernel_workspace/kernel_platform/common || { echo "❌ 源码目录不存在"; exit 1; }
          # 同时加入 ccache（如果存在）
          export PATH="/usr/lib/ccache:$PATH"
 
