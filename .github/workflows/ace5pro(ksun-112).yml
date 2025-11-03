@@ -265,23 +265,52 @@ jobs:
    
       - name: Build Kernel
         run: |
-         # 工作目录进入 kernel_workspace
-         cd ${{ github.workspace }}/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86
+         # 🧩 下载并配置 Clang 19.0.0git
+         # ===============================
+
+         # 进入 clang 预编译目录
+         cd /home/runner/work/egcd/egcd/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86
+
          echo "🧹 清理旧版本 Clang..."
-         rm -rf clang-* || true
+         rm -rf clang-* Clang-* || true
+
          echo "⬇️ 下载 Clang 19.0.0git..."
          wget -q https://github.com/ZyCromerZ/Clang/releases/download/19.0.0git-20240723-release/Clang-19.0.0git-20240723.tar.gz
+
          echo "📦 解压中..."
          tar -xvf Clang-19.0.0git-20240723.tar.gz
-         echo "✅ Clang 已解压完成"
-         # 加入 Clang 到 PATH
-         export PATH="${{ github.workspace }}/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-19.0.0git-20240723/bin:$PATH"
-         # 加入 ccache 到 PATH
-         export PATH="/usr/lib/ccache:$PATH"
-         # 验证 Clang 版本
-         echo "🔍 当前 Clang 版本："
-         clang --version || echo "⚠️ 未找到 clang，请检查 PATH 是否正确"
+
+         echo "📂 解压后目录结构："
+         ls -l
+
+         # 自动检测解压出的 Clang 文件夹
+         CLANG_DIR=$(find . -maxdepth 1 -type d \( -name "clang-*" -o -name "Clang-*" \) | head -n 1)
+
+         if [ -z "$CLANG_DIR" ]; then
+         echo "❌ 未检测到 Clang 目录，请检查解压结果！"
+         exit 1
+         fi
+
+         echo "✅ 检测到 Clang 目录：$CLANG_DIR"
          cd ../../../../
+         # 将 Clang 添加到 PATH
+         export PATH="/home/runner/work/egcd/egcd/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/$CLANG_DIR/bin:$PATH"
+
+         # 同时加入 ccache（如果存在）
+         export PATH="/usr/lib/ccache:$PATH"
+
+         # 验证 Clang 版本是否正确加载
+         echo "🔍 当前 Clang 版本："
+         clang --version || { echo "❌ 未找到 clang，请检查 PATH！"; exit 1; }
+
+         # 验证 clang 版本是否为 19 开头
+         CLANG_VERSION=$(clang --version | head -n 1 | grep -o "19\.")
+         if [ -z "$CLANG_VERSION" ]; then
+         echo "⚠️ 警告：当前 clang 版本不是 19.x，可能 PATH 配置错误！"
+         fi
+
+         echo "✅ Clang 环境配置完成"
+
          # 设置固定内核构建时间
          export KERNEL_TIME="Tue Jul  1 19:48:18 UTC 2025"
          export KBUILD_BUILD_TIMESTAMP="$KERNEL_TIME"
