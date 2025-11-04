@@ -125,11 +125,10 @@ jobs:
       - name: 启用超频144
         if: ${{ fromJSON(github.event.inputs.overclocking_144) }}
         run: |
-         cd ${{ github.workspace }}/kernel_workspace
-         ls kernel_platform/common/drivers/
+         cd kernel_workspace
+         ls kernel_platform/common/drivers/of/
          git clone https://github.com/egcd521/egcd.git
-         mkdir -p kernel_platform/common/drivers/of/overwriter/overwrite_configs/24811/
-         mv egcd/xyxs_test.conf kernel_platform/common/drivers/of/overwriter/overwrite_configs/24811/
+         cp egcd/xyxs_test.conf kernel_platform/common/drivers/of/overwriter/overwrite_configs/24811/
 
       - name: Export suffix
         run: |
