@@ -126,7 +126,7 @@ jobs:
         if: ${{ fromJSON(github.event.inputs.overclocking_144) }}
         run: |
          git clone https://github.com/egcd521/egcd.git
-         mv ${{ github.workspace }}/egcd/xyxs_test.conf ${{ github.workspace }}/kernel_platform/common/drivers/of/overwriter/overwrite_configs/24811/
+         mv ${{ github.workspace }}/kernel_workspace/egcd/xyxs_test.conf ${{ github.workspace }}/kernel_workspace/kernel_platform/common/drivers/of/overwriter/overwrite_configs/24811/
 
       - name: Export suffix
         run: |
