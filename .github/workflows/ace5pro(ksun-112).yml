@@ -125,6 +125,7 @@ jobs:
       - name: 启用超频144
         if: ${{ fromJSON(github.event.inputs.overclocking_144) }}
         run: |
+         ls kernel_platform/common/drivers/of/
          git clone https://github.com/egcd521/egcd.git
          mv ${{ github.workspace }}/kernel_workspace/egcd/xyxs_test.conf ${{ github.workspace }}/kernel_workspace/kernel_platform/common/drivers/of/overwriter/overwrite_configs/24811/
 
