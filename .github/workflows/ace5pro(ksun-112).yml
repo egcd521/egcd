@@ -42,7 +42,7 @@ on:
         required: false
         default: "-by-见清🤣👉🏻🤡"
       overclocking_144:
-        description: "超频144？"
+        description: "超频144测试用不要勾选"
         required: false
         default: false
         type: boolean
