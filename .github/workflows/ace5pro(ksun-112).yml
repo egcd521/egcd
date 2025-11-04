@@ -41,6 +41,11 @@ on:
         description: "自定义版本来源后缀（如:见清）"
         required: false
         default: "-by-见清🤣👉🏻🤡"
+      overclocking_144:
+        description: "超频144？"
+        required: false
+        default: false
+        type: boolean
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -117,6 +122,14 @@ jobs:
          rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
          rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
 
+      - name: 启用超频144
+        if: ${{ fromJSON(github.event.inputs.overclocking_144) }}
+        run: |
+         cd kernel_workspace
+         ls kernel_platform/common/drivers/of/
+         git clone https://github.com/egcd521/egcd.git
+         cp egcd/xyxs_test_144hz.conf kernel_platform/common/drivers/of/overwriter/overwrite_configs/24811/
+
       - name: Export suffix
         run: |
           echo "TAG_SUFFIX=${{ github.event.inputs.KernelSU_Nex_tag }}" >> $GITHUB_ENV
@@ -186,18 +199,6 @@ jobs:
           patch -p1 -F 3 < 69_hide_stuff.patch
           patch -p1 --fuzz=3 < scope_min_manual_hooks_v1.5.patch
           echo "✅ SUSFS 和 scope_min_manual_hooks_v1.5 patch 应用完成"         
-          
-      - name: Apply lz4kd Patches
-        run: |
-         set -e
-         cd kernel_workspace/kernel_platform/common
-         PATCH_FILE=../../SukiSU_patch/other/zram/zram_patch/${{ inputs.KERNEL_VERSION }}/lz4kd.patch
-         if [[ -f "$PATCH_FILE" ]]; then
-         cp "$PATCH_FILE" ./lz4kd.patch
-         patch -p1 -F 3 < lz4kd.patch || true
-         else
-         echo "❗ lz4kd patch not found for kernel version ${{ inputs.KERNEL_VERSION }}"
-         fi
 
       - name: Add SUSFS Configuration Settings
         run: |
