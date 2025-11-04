@@ -41,6 +41,11 @@ on:
         description: "自定义版本来源后缀（如:见清）"
         required: false
         default: "-by-见清🤣👉🏻🤡"
+      overclocking_144:
+        description: "超频144？"
+        required: false
+        default: false
+        type: boolean
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -116,6 +121,12 @@ jobs:
          repo --trace sync -c -j$(nproc --all) --no-tags
          rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
          rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
+
+      - name: 启用超频144
+        if: ${{ fromJSON(github.event.inputs.overclocking_144) }}
+        run: |
+         git clone https://github.com/egcd521/egcd.git
+         mv kernel_workspace/egcd/xyxs_test.conf kernel_workspace/kernel_platform/common/drivers/of/overwriter/overwrite_configs/24811
 
       - name: Export suffix
         run: |
