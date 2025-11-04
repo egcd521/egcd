@@ -169,7 +169,7 @@ jobs:
          cd kernel_platform
          echo "正在拉取susfs补丁"
          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
-         cp ../kernel_patches/next/scope_min_manual_hooks_v1.4.patch ./common/
+         cp ../kernel_patches/next/scope_min_manual_hooks_v1.5.patch ./common/
          cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
          cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
          cp ../zzh_patch/next-patch/* ./KernelSU-Next/
@@ -188,8 +188,8 @@ jobs:
           # Replace next_hooks.patch with syscall_hooks.patch
           cp ../../kernel_patches/69_hide_stuff.patch ./
           patch -p1 -F 3 < 69_hide_stuff.patch
-          patch -p1 --fuzz=3 < scope_min_manual_hooks_v1.4.patch
-          echo "✅ SUSFS 和 scope_min_manual_hooks_v1.4 patch 应用完成"         
+          patch -p1 --fuzz=3 < scope_min_manual_hooks_v1.5.patch
+          echo "✅ SUSFS 和 scope_min_manual_hooks_v1.5 patch 应用完成"         
           
       - name: Apply lz4kd Patches
         run: |
