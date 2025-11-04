@@ -320,7 +320,7 @@ jobs:
          LD=ld.lld HOSTLD=ld.lld O=out SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}"
 
          # 进入源码目录
-         cd kernel_workspace/kernel_platform/common
+         cd ${{ github.workspace }}/kernel_workspace/kernel_platform/common || { echo "❌ 源码目录不存在"; exit 1; }
 
          # 执行 defconfig
          make -j$(nproc) $MAKE_ARGS gki_defconfig
