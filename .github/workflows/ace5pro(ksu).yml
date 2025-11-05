@@ -133,28 +133,13 @@ jobs:
          cd kernel_platform
          echo "正在拉取susfs补丁"
          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
-         cp ../kernel_patches/next/scope_min_manual_hooks_v1.4.patch ./common/
+         cp ../kernel_patches/next/scope_min_manual_hooks_v1.5.patch ./common/
          cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
          cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
          cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
          cp -r ../zzh_patch/zram/lz4/* ./common/lib/lz4/
          cp -r ../zzh_patch/zram/include/linux/* ./common/include/linux/
          cp -r ../zzh_patch/zram/${{ inputs.kernel_version }}/lz4_1.10.0.patch ./common/
-         cd ./common
-         for file in \
-         "lib/lz4/lz4_compress.c" \
-         "lib/lz4/lz4_decompress.c" \
-         "lib/lz4/lz4defs.h" \
-         "lib/lz4/lz4hc_compress.c"
-         do
-         if [ -f "$file" ]; then
-         echo "🗑️ 正在删除：$file"
-         rm -f "$file"
-         else
-         echo "⚠️ 文件不存在：$file"
-         fi
-         done
-         cd ../
          cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
          cp -r ../SukiSU_patch/other/zram/lz4k/include/linux/* ./common/include/linux || true
          cp -r ../SukiSU_patch/other/zram/lz4k/lib/* ./common/lib || true
@@ -170,9 +155,10 @@ jobs:
           # Replace next_hooks.patch with syscall_hooks.patch
           cp ../../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./
           patch -p1 --forward < 10_enable_susfs_for_ksu.patch
+          patch -p1 --fuzz=3 < scope_min_manual_hooks_v1.5.patch
           patch -s -p1 -F 3 < boot.patch || true
           patch -p1 -F 3 --fuzz=5 < lz4_1.10.0.patch || true
-          echo "✅ SUSFS 和 scope_min_manual_hooks_v1.4 patch 应用完成"         
+          echo "✅ SUSFS 和 scope_min_manual_hooks_v1.5 patch 应用完成"         
           
       - name: Apply lz4kd Patches
         run: |
@@ -192,8 +178,6 @@ jobs:
           echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_KPROBES_HOOK=n" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          
           echo "CONFIG_CRYPTO_LZ4HC=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_CRYPTO_LZ4K=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_CRYPTO_LZ4KD=y" >> ./common/arch/arm64/configs/gki_defconfig
