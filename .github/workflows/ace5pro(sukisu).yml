@@ -1,4 +1,4 @@
-name: ace5pro(自定义sukisu版本）
+name: ace5pro(sukisu）
 on:
   workflow_dispatch:
     inputs:
@@ -139,7 +139,7 @@ jobs:
          v\$(KSU_VERSION_API)-sukisu-\$(KSU_VERSION)-by-${TAG_SUFFIX}\\
          endef" kernel/Makefile
          echo "✅ Injected custom version: v\$(KSU_VERSION_API)-sukisu-\$(KSU_VERSION)-by-$TAG_SUFFIX"
-         KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10700)
+         KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 37185)
          echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
          export KSU_VERSION=$KSU_VERSION
 
@@ -356,5 +356,5 @@ jobs:
       - name: Upload AnyKernel3 artifact
         uses: actions/upload-artifact@v4
         with:
-          name: AnyKernel3_oneplus_ace5pro_${{ env.KSUVER }}_sukisu_自定义
+          name: AnyKernel3_oneplus_ace5pro_${{ env.KSUVER }}_sukisu
           path: kernel_workspace/kernel_platform/dist/AnyKernel3/*
