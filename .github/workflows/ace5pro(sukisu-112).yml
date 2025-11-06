@@ -146,45 +146,29 @@ jobs:
       - name: Set up SUSFS & apply patches
         run: |
          set -e
-
          cd kernel_workspace
-         git clone --depth=1 https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}
+         git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}
          git clone --depth=1 https://github.com/SukiSU-Ultra/SukiSU_patch.git
-         git clone https://github.com/egcd521/kernel_patches.git
-         git clone https://$TOKEN@github.com/egcd521/111.git
+         git clone https://github.com/WildPlusKernel/kernel_patches.git
+         git clone https://github.com/egcd521/GKI_KernelSU_SUSFS.git zzh_patch
          cd kernel_platform
-         cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}.patch ./common/ || true
-         mkdir -p ./common/fs ./common/include/linux ./common/lib ./common/crypto
-         cp ../kernel_patches/next/scope_min_manual_hooks_v1.6.patch ./common/
-         cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/ || true
-         cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/ || true
-         cp -r ../SukiSU_patch/other/zram/lz4k/include/linux/* ./common/include/linux || true
-         cp -r ../SukiSU_patch/other/zram/lz4k/lib/* ./common/lib || true
-         cp -r ../SukiSU_patch/other/zram/lz4k/crypto/* ./common/crypto || true
-         cp -r ../SukiSU_patch/other/zram/lz4k_oplus ./common/lib/ || true
-         cp ../111/boot.patch ./common/
-         cd ./common
-         PATCH_FILE=50_add_susfs_in_gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}.patch
-         if [[ -f "$PATCH_FILE" ]]; then
-         #sed -i 's/-32,12 +32,38/-32,11 +32,37/g' "$PATCH_FILE"
-         #sed -i '/#include <trace\/hooks\/fs.h>/d' "$PATCH_FILE"
-         patch -p1 < "$PATCH_FILE" || true
-         fi
+         echo "正在拉取susfs补丁"
+         cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
+         cp ../kernel_patches/next/scope_min_manual_hooks_v1.5.patch ./common/
+         cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
+         cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
+         cp ../zzh_patch/next-patch/* ./KernelSU-Next/
+         cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
+         cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
+         cd ./common/
+         # if [[ "${{ github.event.inputs.FEIL }}" == "oneplus_13" || "${{ github.event.inputs.FEIL }}" == "oneplus_ace5_pro" ]]; then
+         # sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch
+         # sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch
+         # fi
+          patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
+          # Replace next_hooks.patch with syscall_hooks.patch
          patch -p1 --fuzz=3 < scope_min_manual_hooks_v1.6.patch
-         patch -s -p1 -F 3 < boot.patch
          echo "✅ SUSFS 和 scope_min_manual_hooks_v1.6 应用完成"
-
-      - name: Apply lz4kd Patches
-        run: |
-         set -e
-         cd kernel_workspace/kernel_platform/common
-         PATCH_FILE=../../SukiSU_patch/other/zram/zram_patch/${{ inputs.KERNEL_VERSION }}/lz4kd.patch
-         if [[ -f "$PATCH_FILE" ]]; then
-         cp "$PATCH_FILE" ./lz4kd.patch
-         patch -p1 -F 3 < lz4kd.patch || true
-         else
-         echo "❗ lz4kd patch not found for kernel version ${{ inputs.KERNEL_VERSION }}"
-         fi
 
       - name: Set CONFIG_LOCALVERSION
         if: ${{ inputs.local_version != '-4k' }}
@@ -259,23 +243,6 @@ jobs:
         run: |
          cd kernel_workspace/kernel_platform
          sed -i 's/-4k//' ./common/arch/arm64/configs/gki_defconfig
-    
-      - name: 拉取并集成 sched_ext 调度器
-        run: |
-         set -e
-         cd kernel_workspace/kernel_platform/common
-         git clone https://github.com/Numbersf/SCHED_PATCH.git -b "${{ github.event.inputs.CPU }}"
-         echo "正在拉取风驰补丁"
-         cp "./SCHED_PATCH/fengchi_${{ github.event.inputs.FEIL }}.patch" ./
-         if [[ -f "fengchi_${{ github.event.inputs.FEIL }}.patch" ]]; then
-         echo "正在打风驰补丁"
-         dos2unix "fengchi_${{ github.event.inputs.FEIL }}.patch"
-         patch -p1 -F 3 < "fengchi_${{ github.event.inputs.FEIL }}.patch"
-         echo "✅ fengchi_patch 完成"
-         else
-         echo "❌ 未匹配到补丁，风驰内核暂未支持你的机型，请关闭后重试"
-         exit 11
-         fi
          
       - name: 拉取afdo
         run: |
@@ -289,13 +256,43 @@ jobs:
 
       - name: Build Kernel
         run: |
-         # 加入 clang 到 PATH
-         export PATH="${{ github.workspace }}/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
-         # 加入 ccache 到 PATH
-         export PATH="/usr/lib/ccache:$PATH" 
+         # 🧩 下载并配置 Clang 19.0.0git（保留系统 Clang）
+         # ===============================
+
+         # 进入 clang 预编译目录
+         cd /home/runner/work/egcd/egcd/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86
+
+         echo "⬇️ 下载 Clang 19.0.0git..."
+         wget -q https://github.com/ZyCromerZ/Clang/releases/download/19.0.0git-20240723-release/Clang-19.0.0git-20240723.tar.gz
+
+         echo "📦 解压中..."
+         # 解压到指定目录 clang-19.0.0git
+         mkdir -p clang-19.0.0git
+         tar -xvf Clang-19.0.0git-20240723.tar.gz -C clang-19.0.0git
+
+         echo "📂 解压后目录结构："
+         ls -l clang-19.0.0git
+
+         # 将下载的 Clang 添加到 PATH（优先使用下载的版本）
+         export PATH="$(pwd)/clang-19.0.0git/bin:$PATH"
+
+         # 验证 Clang 版本是否正确加载
+         echo "🔍 当前 Clang 版本："
+         clang --version || { echo "❌ 未找到 clang，请检查 PATH！"; exit 1; }
+
+         # 验证 clang 版本是否为 19 开头
+         CLANG_VERSION=$(clang --version | head -n 1 | grep -o "19\.")
+         if [ -z "$CLANG_VERSION" ]; then
+            echo "⚠️ 警告：当前 clang 版本不是 19.x，可能 PATH 配置错误！"
+         fi
+
+         echo "✅ Clang 环境配置完成"
+         # 回到源码目录
+         cd ${{ github.workspace }}/kernel_workspace/kernel_platform/common || { echo "❌ 源码目录不存在"; exit 1; }
+         # 同时加入 ccache（如果存在）
+         export PATH="/usr/lib/ccache:$PATH"
 
          # 设置固定内核构建时间
-         export BUILD_VERSION=1
          export KERNEL_TIME="Tue Jul  1 19:48:18 UTC 2025"
          export KBUILD_BUILD_TIMESTAMP="$KERNEL_TIME"
          export SOURCE_DATE_EPOCH=$(date -d "$KERNEL_TIME" +%s)
@@ -306,11 +303,6 @@ jobs:
          exit 1
          fi
 
-         # 打印验证
-         echo "KERNEL_TIME = $KERNEL_TIME"
-         echo "SOURCE_DATE_EPOCH = $SOURCE_DATE_EPOCH"
-         echo "Using KCFLAGS: -Wno-error -fauto-profile=$AFDO_PROFILE"
-
          # 设置一些通用参数（便于后续维护）
          export KCFLAGS="-Wno-error -fauto-profile=$AFDO_PROFILE"
          export MAKE_ARGS="LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
@@ -319,7 +311,7 @@ jobs:
          LD=ld.lld HOSTLD=ld.lld O=out SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}"
 
          # 进入源码目录
-         cd kernel_workspace/kernel_platform/common
+         cd ${{ github.workspace }}/kernel_workspace/kernel_platform/common || { echo "❌ 源码目录不存在"; exit 1; }
 
          # 执行 defconfig
          make -j$(nproc) $MAKE_ARGS gki_defconfig
