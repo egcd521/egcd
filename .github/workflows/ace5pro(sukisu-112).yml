@@ -149,7 +149,7 @@ jobs:
          cd kernel_workspace
          git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}
          git clone --depth=1 https://github.com/SukiSU-Ultra/SukiSU_patch.git
-         git clone https://github.com/WildPlusKernel/kernel_patches.git
+         git clone https://github.com/egcd521/kernel_patches.git
          git clone https://github.com/egcd521/GKI_KernelSU_SUSFS.git zzh_patch
          cd kernel_platform
          echo "正在拉取susfs补丁"
