@@ -154,7 +154,7 @@ jobs:
          cd kernel_platform
          echo "正在拉取susfs补丁"
          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
-         cp ../kernel_patches/next/scope_min_manual_hooks_v1.5.patch ./common/
+         cp ../kernel_patches/next/scope_min_manual_hooks_v1.6.patch ./common/
          cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
          cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
          cp ../zzh_patch/next-patch/* ./KernelSU-Next/
