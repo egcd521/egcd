@@ -266,7 +266,7 @@ jobs:
          # ===============================
 
          # 进入 clang 预编译目录
-         cd /home/runner/work/egcd/egcd/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86
+         cd ${{ github.workspace }}/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86
 
          echo "⬇️ 下载 Clang 19.0.0git..."
          wget -q https://github.com/ZyCromerZ/Clang/releases/download/19.0.0git-20240723-release/Clang-19.0.0git-20240723.tar.gz
