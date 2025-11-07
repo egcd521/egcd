@@ -264,7 +264,7 @@ jobs:
          echo "📦 解压中..."
          # 解压到指定目录 clang-19.0.0git
          mkdir -p clang-19.0.0git
-         tar -xvf Clang-19.0.0git-20240723.tar.gz -C clang-19.0.0git
+         tar -xf Clang-19.0.0git-20240723.tar.gz -C clang-19.0.0git
 
          echo "📂 解压后目录结构："
          ls -l clang-19.0.0git
