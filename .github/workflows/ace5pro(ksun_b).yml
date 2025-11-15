@@ -166,7 +166,6 @@ jobs:
          git clone --depth=1 https://github.com/SukiSU-Ultra/SukiSU_patch.git
          git clone https://$TOKEN@github.com/egcd521/111.git
          git clone https://github.com/WildPlusKernel/kernel_patches.git
-         git clone https://github.com/egcd521/GKI_KernelSU_SUSFS.git zzh_patch
          cd kernel_platform
          echo "正在拉取susfs补丁"
          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
@@ -175,24 +174,6 @@ jobs:
          cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
          cp ../zzh_patch/next-patch/* ./KernelSU-Next/
          cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
-         cp -r ../zzh_patch/zram/lz4/* ./common/lib/lz4/
-         cp -r ../zzh_patch/zram/include/linux/* ./common/include/linux/
-         cp -r ../zzh_patch/zram/${{ inputs.kernel_version }}/lz4_1.10.0.patch ./common/
-         cd ./common
-         for file in \
-         "lib/lz4/lz4_compress.c" \
-         "lib/lz4/lz4_decompress.c" \
-         "lib/lz4/lz4defs.h" \
-         "lib/lz4/lz4hc_compress.c"
-         do
-         if [ -f "$file" ]; then
-         echo "🗑️ 正在删除：$file"
-         rm -f "$file"
-         else
-         echo "⚠️ 文件不存在：$file"
-         fi
-         done
-         cd ../
          cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
          cp -r ../SukiSU_patch/other/zram/lz4k/include/linux/* ./common/include/linux || true
          cp -r ../SukiSU_patch/other/zram/lz4k/lib/* ./common/lib || true
@@ -210,20 +191,7 @@ jobs:
           patch -p1 -F 3 < 69_hide_stuff.patch
           patch -p1 --fuzz=3 < scope_min_manual_hooks_v1.5.patch
           patch -s -p1 -F 3 < boot.patch || true
-          patch -p1 -F 3 --fuzz=5 < lz4_1.10.0.patch || true
-          echo "✅ SUSFS 和 scope_min_manual_hooks_v1.5 patch 应用完成"         
-          
-      - name: Apply lz4kd Patches
-        run: |
-         set -e
-         cd kernel_workspace/kernel_platform/common
-         PATCH_FILE=../../SukiSU_patch/other/zram/zram_patch/${{ inputs.KERNEL_VERSION }}/lz4kd.patch
-         if [[ -f "$PATCH_FILE" ]]; then
-         cp "$PATCH_FILE" ./lz4kd.patch
-         patch -p1 -F 3 < lz4kd.patch || true
-         else
-         echo "❗ lz4kd patch not found for kernel version ${{ inputs.KERNEL_VERSION }}"
-         fi
+          echo "✅ SUSFS 和 scope_min_manual_hooks_v1.5 patch 应用完成"
 
       - name: Add SUSFS Configuration Settings
         run: |
