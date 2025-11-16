@@ -170,7 +170,6 @@ jobs:
          #sed -i '/#include <trace\/hooks\/fs.h>/d' "$PATCH_FILE"
          patch -p1 < "$PATCH_FILE" || true
          fi
-         patch -p1 --fuzz=3 < scope_min_manual_hooks_v1.6.patch
          patch -s -p1 -F 3 < boot.patch
          echo "✅ SUSFS 和 scope_min_manual_hooks_v1.6 应用完成"
 
