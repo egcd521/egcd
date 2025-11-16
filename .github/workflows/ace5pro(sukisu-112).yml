@@ -163,7 +163,6 @@ jobs:
          #sed -i '/#include <trace\/hooks\/fs.h>/d' "$PATCH_FILE"
          patch -p1 < "$PATCH_FILE" || true
          fi
-         patch -p1 --fuzz=3 < scope_min_manual_hooks_v1.6.patch
          echo "✅ SUSFS 和 scope_min_manual_hooks_v1.6 应用完成"
 
       - name: Set CONFIG_LOCALVERSION
