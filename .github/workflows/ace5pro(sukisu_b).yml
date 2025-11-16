@@ -187,7 +187,6 @@ jobs:
           cat <<EOF >> ./common/arch/arm64/configs/gki_defconfig
           # KSU 与 SUSFS 配置
           CONFIG_KSU=y
-          CONFIG_KSU_MANUAL_HOOK=y
           CONFIG_KSU_SUSFS=y
           CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y
           CONFIG_KSU_SUSFS_SUS_PATH=y
@@ -202,7 +201,6 @@ jobs:
           CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y
           CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
           CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
-          CONFIG_KSU_SUSFS_SUS_SU=n
           CONFIG_KSU_SUSFS_SUS_OVERLAYFS=n
           # 启用 ThinLTO 与 Polly 优化器
           CONFIG_LTO_CLANG=y
