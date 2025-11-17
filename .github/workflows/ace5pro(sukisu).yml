@@ -155,7 +155,7 @@ jobs:
          cd kernel_platform
          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}.patch ./common/ || true
          mkdir -p ./common/fs ./common/include/linux ./common/lib ./common/crypto
-         cp ../kernel_patches/next/scope_min_manual_hooks_v1.6.patch ./common/
+         cp ../kernel_patches/next/* ./common/
          cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/ || true
          cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/ || true
          cp -r ../SukiSU_patch/other/zram/lz4k/include/linux/* ./common/include/linux || true
@@ -171,7 +171,12 @@ jobs:
          patch -p1 < "$PATCH_FILE" || true
          fi
          patch -s -p1 -F 3 < boot.patch
-         echo "✅ SUSFS 和 scope_min_manual_hooks_v1.6 应用完成"
+         patch -s -p1 -F 3 < 1.patch
+         patch -s -p1 -F 3 < 2.patch
+         patch -s -p1 -F 3 < 3.patch
+         patch -s -p1 -F 3 < 4.patch
+         patch -s -p1 -F 3 < 5.patch
+         echo "✅ SUSFS 和 Tracepoint Hook 应用完成"
 
       - name: Apply lz4kd Patches
         run: |
