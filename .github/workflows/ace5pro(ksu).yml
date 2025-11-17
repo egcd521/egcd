@@ -147,29 +147,12 @@ jobs:
          cp -r ../SukiSU_patch/other/zram/lz4k_oplus ./common/lib/ || true
          cp ../111/boot.patch ./common/
          cd ./common/
-         if [[ "${{ github.event.inputs.FEIL }}" == "oneplus_13" || "${{ github.event.inputs.FEIL }}" == "oneplus_ace5_pro" ]]; then
-         # sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch
-         # sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch
-         fi
          patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
          # Replace next_hooks.patch with syscall_hooks.patch
          cp ../../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./
          patch -p1 --forward < 10_enable_susfs_for_ksu.patch
          patch -s -p1 -F 3 < boot.patch || true
-         patch -p1 -F 3 --fuzz=5 < lz4_1.10.0.patch || true
-         echo "✅ SUSFS 和 scope_min_manual_hooks_v1.5 patch 应用完成"         
-          
-      - name: Apply lz4kd Patches
-        run: |
-         set -e
-         cd kernel_workspace/kernel_platform/common
-         PATCH_FILE=../../SukiSU_patch/other/zram/zram_patch/${{ inputs.KERNEL_VERSION }}/lz4kd.patch
-         if [[ -f "$PATCH_FILE" ]]; then
-         cp "$PATCH_FILE" ./lz4kd.patch
-         patch -p1 -F 3 < lz4kd.patch || true
-         else
-         echo "❗ lz4kd patch not found for kernel version ${{ inputs.KERNEL_VERSION }}"
-         fi
+         echo "✅ SUSFS 和 scope_min_manual_hooks_v1.5 patch 应用完成" 
 
       - name: Add SUSFS Configuration Settings
         run: |
