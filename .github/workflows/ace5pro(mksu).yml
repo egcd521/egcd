@@ -124,32 +124,35 @@ jobs:
       - name: Set up SUSFS & apply patches
         run: |
          set -e
-
          cd kernel_workspace
-         git clone --depth=1 https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}
+         git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}
          git clone --depth=1 https://github.com/SukiSU-Ultra/SukiSU_patch.git
-         git clone https://github.com/egcd521/kernel_patches.git
          git clone https://$TOKEN@github.com/egcd521/111.git
+         git clone https://github.com/WildPlusKernel/kernel_patches.git
+         git clone https://github.com/egcd521/GKI_KernelSU_SUSFS.git zzh_patch
          cd kernel_platform
-         cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}.patch ./common/ || true
-         mkdir -p ./common/fs ./common/include/linux ./common/lib ./common/crypto
-         cp ../kernel_patches/next/scope_min_manual_hooks_v1.6.patch ./common/
-         cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/ || true
-         cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/ || true
+         echo "正在拉取susfs补丁"
+         cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
+         cp ../kernel_patches/next/scope_min_manual_hooks_v1.5.patch ./common/
+         cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
+         cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
+         cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
+         cp -r ../zzh_patch/zram/lz4/* ./common/lib/lz4/
+         cp -r ../zzh_patch/zram/include/linux/* ./common/include/linux/
+         cp -r ../zzh_patch/zram/${{ inputs.kernel_version }}/lz4_1.10.0.patch ./common/
+         cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
          cp -r ../SukiSU_patch/other/zram/lz4k/include/linux/* ./common/include/linux || true
          cp -r ../SukiSU_patch/other/zram/lz4k/lib/* ./common/lib || true
          cp -r ../SukiSU_patch/other/zram/lz4k/crypto/* ./common/crypto || true
          cp -r ../SukiSU_patch/other/zram/lz4k_oplus ./common/lib/ || true
          cp ../111/boot.patch ./common/
-         cd ./common
-         PATCH_FILE=50_add_susfs_in_gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}.patch
-         if [[ -f "$PATCH_FILE" ]]; then
-         #sed -i 's/-32,12 +32,38/-32,11 +32,37/g' "$PATCH_FILE"
-         #sed -i '/#include <trace\/hooks\/fs.h>/d' "$PATCH_FILE"
-         patch -p1 < "$PATCH_FILE" || true
-         fi
-         patch -s -p1 -F 3 < boot.patch
-         echo "✅ SUSFS 和 scope_min_manual_hooks_v1.6 应用完成" 
+         cd ./common/
+         patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
+         # Replace next_hooks.patch with syscall_hooks.patch
+         cp ../../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./
+         patch -p1 --forward < 10_enable_susfs_for_ksu.patch || true
+         patch -s -p1 -F 3 < boot.patch || true
+         echo "✅ SUSFS 和 scope_min_manual_hooks_v1.5 patch 应用完成" 
 
       - name: Add SUSFS Configuration Settings
         run: |
