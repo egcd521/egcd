@@ -150,7 +150,6 @@ jobs:
          patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
          # Replace next_hooks.patch with syscall_hooks.patch
          cp ../../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./
-         patch -p1 --forward < 10_enable_susfs_for_ksu.patch
          patch -s -p1 -F 3 < boot.patch || true
          echo "✅ SUSFS 和 scope_min_manual_hooks_v1.5 patch 应用完成" 
 
