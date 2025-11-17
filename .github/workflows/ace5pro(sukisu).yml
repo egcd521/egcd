@@ -205,7 +205,7 @@ jobs:
           # KSU 与 SUSFS 配置
           CONFIG_KSU=y
           CONFIG_KSU_SUSFS=y
-          CONFIG_TRACEPOINT_HOOK＝y
+          CONFIG_KSU_TRACEPOINT_HOOK=y
           CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y
           CONFIG_KSU_SUSFS_SUS_PATH=y
           CONFIG_KSU_SUSFS_SUS_MOUNT=y
