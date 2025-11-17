@@ -171,12 +171,7 @@ jobs:
          patch -p1 < "$PATCH_FILE" || true
          fi
          patch -s -p1 -F 3 < boot.patch
-         patch -p1 < 1.patch
-         patch -p1 < 2.patch
-         patch -p1 < 3.patch
-         patch -p1 < 4.patch
-         patch -p1 < 5.patch
-         echo "✅ SUSFS 和 Tracepoint Hook 应用完成"
+         echo "✅ SUSFS 和 boot patch 应用完成"
 
       - name: Apply lz4kd Patches
         run: |
