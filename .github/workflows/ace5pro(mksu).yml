@@ -155,6 +155,8 @@ jobs:
          fi
          cp ../../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./
          patch -p1 --forward < 10_enable_susfs_for_ksu.patch || true
+         wget https://github.com/cctv18/oppo_oplus_realme_sm8750/raw/refs/heads/main/other_patch/mksu_supercalls.patch
+         patch -p1 < mksu_supercalls.patch || true
          patch -s -p1 -F 3 < boot.patch || true
          echo "✅ SUSFS 和 scope_min_manual_hooks_v1.5 patch 应用完成" 
 
