@@ -133,19 +133,24 @@ jobs:
          git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}
          git clone https://github.com/ShirkNeko/SukiSU_patch.git
          git clone https://$TOKEN@github.com/egcd521/111.git
-         cp ./susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU/
-         cp ./susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
-         cp ./susfs4ksu/kernel_patches/fs/* ./common/fs/
-         cp ./susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
-         cp ./SukiSU_patch/69_hide_stuff.patch ./common/
-         cd ./KernelSU
+
+         # 注意：KernelSU 在 kernel_platform/KernelSU
+         cp ./susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./kernel_platform/KernelSU/
+         cp ./susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./kernel_platform/common
+         cp ./susfs4ksu/kernel_patches/fs/* ./kernel_platform/common/fs/
+         cp ./susfs4ksu/kernel_patches/include/linux/* ./kernel_platform/common/include/linux/
+         cp ./SukiSU_patch/69_hide_stuff.patch ./kernel_platform/common/
+         cp ./111/boot.patch ./kernel_platform/common/
+
+         cd ./kernel_platform/KernelSU
          patch -p1 < 10_enable_susfs_for_ksu.patch || true
-         #为MKSU修正susfs 2.0.0补丁
+
          wget https://github.com/cctv18/oppo_oplus_realme_sm8750/raw/refs/heads/main/other_patch/mksu_supercalls.patch
          patch -p1 < mksu_supercalls.patch || true
+
          wget https://github.com/cctv18/oppo_oplus_realme_sm8750/raw/refs/heads/main/other_patch/fix_umount.patch
          patch -p1 < fix_umount.patch || true
-         cp ./111/boot.patch ./common/
+
          cd ./common
          PATCH_FILE=50_add_susfs_in_gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}.patch
          if [[ -f "$PATCH_FILE" ]]; then
@@ -155,7 +160,8 @@ jobs:
          fi
          patch -p1 -N -F 3 < 69_hide_stuff.patch || true
          patch -s -p1 -F 3 < boot.patch || true
-         echo "✅ SUSFS 和 scope_min_manual_hooks_v1.5 patch 应用完成" 
+         echo "✅ SUSFS 和 boot patch 应用完成"
+ 
 
       - name: Add SUSFS Configuration Settings
         run: |
