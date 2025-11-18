@@ -125,11 +125,11 @@ jobs:
         run: |
          set -e
          cd kernel_workspace
-         git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android15-6.6
+         git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}
          git clone https://github.com/ShirkNeko/SukiSU_patch.git
          git clone https://$TOKEN@github.com/egcd521/111.git
          cp ./susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU/
-         cp ./susfs4ksu/kernel_patches/50_add_susfs_in_gki-android15-6.6.patch ./common/
+         cp ./susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
          cp ./susfs4ksu/kernel_patches/fs/* ./common/fs/
          cp ./susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
          cp ./SukiSU_patch/69_hide_stuff.patch ./common/
@@ -140,7 +140,7 @@ jobs:
          patch -p1 < mksu_supercalls.patch || true
          wget https://github.com/cctv18/oppo_oplus_realme_sm8750/raw/refs/heads/main/other_patch/fix_umount.patch
          patch -p1 < fix_umount.patch || true
-         cp ../111/boot.patch ./common/
+         cp ./111/boot.patch ./common/
          cd ./common
          PATCH_FILE=50_add_susfs_in_gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}.patch
          if [[ -f "$PATCH_FILE" ]]; then
