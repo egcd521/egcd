@@ -150,7 +150,8 @@ jobs:
 
          wget https://github.com/cctv18/oppo_oplus_realme_sm8750/raw/refs/heads/main/other_patch/fix_umount.patch
          patch -p1 < fix_umount.patch || true
-
+         # ❗ 从 KernelSU 目录返回到 kernel_platform
+         cd ..
          cd ./common
          PATCH_FILE=50_add_susfs_in_gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}.patch
          if [[ -f "$PATCH_FILE" ]]; then
