@@ -44,7 +44,7 @@ on:
       sukisu_tag:
         description: "自定义版本来源后缀（如:见清）"
         required: false
-        default: ""
+        default: "见清🤣👉🏻🤡"
         
 jobs:
   build:
