@@ -129,7 +129,7 @@ jobs:
       - name: Inject dynamic SukiSU string version
         run: |
          cd kernel_workspace/kernel_platform
-         curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-main
+         curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s tmp-builtin
          cd KernelSU
          # 获取自定义后缀（如：见清）
          TAG_SUFFIX="${{ github.event.inputs.sukisu_tag }}"
