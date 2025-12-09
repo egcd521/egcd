@@ -129,7 +129,7 @@ jobs:
       - name: Inject dynamic SukiSU string version
         run: |
          cd kernel_workspace/kernel_platform
-         curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s builtin
+         curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/builtin/kernel/setup.sh" | bash -s builtin
          cd KernelSU
          # 获取自定义后缀（如：见清）
          TAG_SUFFIX="${{ github.event.inputs.sukisu_tag }}"
@@ -139,7 +139,7 @@ jobs:
          v\$(KSU_VERSION_API)-sukisu-\$(KSU_VERSION)-by-${TAG_SUFFIX}\\
          endef" kernel/Makefile
          echo "✅ Injected custom version: v\$(KSU_VERSION_API)-sukisu-\$(KSU_VERSION)-by-$TAG_SUFFIX"
-         KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 37185)
+         KSU_VERSION=$(expr $(/usr/bin/git rev-list --count builtin) "+" 37185)
          echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
          export KSU_VERSION=$KSU_VERSION
          
