@@ -132,7 +132,7 @@ jobs:
          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/builtin/kernel/setup.sh" | bash -s builtin
          cd KernelSU || exit 
          # 自定义后缀（支持 emoji）
-         TAG_SUFFIX="见清🤣👉🏻🤡
+         TAG_SUFFIX="见清🤣👉🏻🤡"
          # 注入自定义版本字符串（新版在 kernel/Kbuild）
          perl -0777 -i -pe 's/define get_ksu_version_full\n.*?\nendef/define get_ksu_version_full\nv\$(KSU_VERSION_API)-sukisu-\$(KSU_VERSION)-by-'"${TAG_SUFFIX}"'\nendef/s' kernel/Kbuil
          echo "✅ Injected: v\$(KSU_VERSION_API)-sukisu-\$(KSU_VERSION)-by-${TAG_SUFFIX}
