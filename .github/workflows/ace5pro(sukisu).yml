@@ -128,19 +128,19 @@ jobs:
          
       - name: Inject dynamic SukiSU string version
         run: |
-         cd kernel_workspace/kernel_platform || exit 
+         cd kernel_workspace/kernel_platform
          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/builtin/kernel/setup.sh" | bash -s builtin
-         cd KernelSU || exit 
+         cd KernelSU
          # 自定义后缀（支持 emoji）
          TAG_SUFFIX="见清🤣👉🏻🤡"
-         # 注入自定义版本字符串（新版在 kernel/Kbuild）
-         perl -0777 -i -pe 's/define get_ksu_version_full\n.*?\nendef/define get_ksu_version_full\nv\$(KSU_VERSION_API)-sukisu-\$(KSU_VERSION)-by-'"${TAG_SUFFIX}"'\nendef/s' kernel/Kbuil
-         echo "✅ Injected: v\$(KSU_VERSION_API)-sukisu-\$(KSU_VERSION)-by-${TAG_SUFFIX}
+         # 注入自定义版本字符串（kernel/Kbuild）
+         perl -0777 -i -pe 's/define get_ksu_version_full\n.*?\nendef/define get_ksu_version_full\nv\$(KSU_VERSION_API)-sukisu-\$(KSU_VERSION)-by-'"${TAG_SUFFIX}"'\nendef/s' kernel/Kbuild
+         echo "✅ Injected: v\$(KSU_VERSION_API)-sukisu-\$(KSU_VERSION)-by-${TAG_SUFFIX}"
          # 计算 KSU_VERSION
          KSU_LOCAL_COUNT=$(git rev-list --count builtin 2>/dev/null || echo 0)
-         KSU_VERSION=$(expr 40000 + "$KSU_LOCAL_COUNT" - 2815
+         KSU_VERSION=$(expr 40000 + "$KSU_LOCAL_COUNT" - 2815)
          echo "KSUVER=$KSU_VERSION" >> "$GITHUB_ENV"
-         export KSU_VERSION="$KSU_VERSION
+         export KSU_VERSION="$KSU_VERSION"
          echo "✅ KSU_VERSION=$KSU_VERSION"
          
       - name: Set up SUSFS & apply patches
