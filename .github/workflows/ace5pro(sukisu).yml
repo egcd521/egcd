@@ -128,20 +128,21 @@ jobs:
          
       - name: Inject dynamic SukiSU string version
         run: |
-         cd kernel_workspace/kernel_platform
+         cd kernel_workspace/kernel_platform || exit 
          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/builtin/kernel/setup.sh" | bash -s builtin
-         cd KernelSU
-         # 获取自定义后缀（如：见清）
-         TAG_SUFFIX="${{ github.event.inputs.sukisu_tag }}"
-         # 使用正确变量名 KSU_VERSION_API 替换函数体
-         sed -i "/^define get_ksu_version_full$/,/^endef$/c\
-         define get_ksu_version_full\\
-         v\$(KSU_VERSION_API)-sukisu-\$(KSU_VERSION)-by-${TAG_SUFFIX}\\
-         endef" kernel/Makefile
-         echo "✅ Injected custom version: v\$(KSU_VERSION_API)-sukisu-\$(KSU_VERSION)-by-$TAG_SUFFIX"
-         KSU_VERSION=$(expr $(/usr/bin/git rev-list --count builtin) "+" 37185)
-         echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
-         export KSU_VERSION=$KSU_VERSION
+         cd KernelSU || exit 
+         # 自定义后缀（GitHub Actions 输入）
+         TAG_SUFFIX="${{ github.event.inputs.sukisu_tag }}
+         # 注入自定义版本字符串（新版在 kernel/Kbuild）
+         perl -0777 -i -pe 's/define get_ksu_version_full\n.*?\nendef/define get_ksu_version_full\nv\$(KSU_VERSION_API)-sukisu-\$(KSU_VERSION)-by-'"${TAG_SUFFIX}"'\nendef/s' kernel/Kbuil
+         echo "✅ Injected: v\$(KSU_VERSION_API)-sukisu-\$(KSU_VERSION)-by-${TAG_SUFFIX}
+         # 计算 KSU_VERSION（和 Kbuild 逻辑一致）
+         KSU_LOCAL_COUNT=$(git rev-list --count builtin 2>/dev/null || echo 0)
+         KSU_VERSION=$(expr 40000 + "$KSU_LOCAL_COUNT" - 2815
+         echo "KSUVER=$KSU_VERSION" >> "$GITHUB_ENV"
+         export KSU_VERSION="$KSU_VERSION
+         echo "✅ KSU_VERSION=$KSU_VERSION"
+
          
       - name: Set up SUSFS & apply patches
         run: |
