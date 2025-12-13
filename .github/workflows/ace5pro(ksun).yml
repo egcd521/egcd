@@ -124,7 +124,7 @@ jobs:
       - name: Setup KernelSU-Next
         run: |
           cd kernel_workspace/kernel_platform
-          curl -LSs "https://raw.githubusercontent.com/pershoot/KernelSU-Next/next-susfs/kernel/setup.sh" | bash -s next-susfs
+          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -s next
           cd KernelSU-Next
 
           # 获取 next 分支 commit 数量并加上 10200
