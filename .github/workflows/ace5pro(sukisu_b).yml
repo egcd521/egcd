@@ -138,7 +138,7 @@ jobs:
          echo "✅ Injected: v\$(KSU_VERSION_API)-sukisu-\$(KSU_VERSION)-by-${TAG_SUFFIX}"
          # 计算 KSU_VERSION
          KSU_LOCAL_COUNT=$(git rev-list --count builtin 2>/dev/null || echo 0)
-         KSU_VERSION=$(expr 42483 + "$KSU_LOCAL_COUNT" - 2815)
+         KSU_VERSION=$(expr 42483 + "$KSU_LOCAL_COUNT" - 2242)
          echo "KSUVER=$KSU_VERSION" >> "$GITHUB_ENV"
          export KSU_VERSION="$KSU_VERSION"
          echo "✅ KSU_VERSION=$KSU_VERSION"
