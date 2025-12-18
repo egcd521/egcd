@@ -9,7 +9,7 @@ on:
       FEIL:
         description: "配置文件"
         required: true
-        default: 'oneplus_ace5'
+        default: 'oneplus_ace5_b'
       ANDROID_VERSION:
         description: "内核安卓版本"
         required: true
