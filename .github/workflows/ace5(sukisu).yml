@@ -210,7 +210,7 @@ jobs:
       - name: Add make name
         run: |
          cd kernel_workspace/kernel_platform
-         sed -i "\$s|echo \"\\\$res\"|echo \"-${{ github.event.inputs.KERNEL_NAME }}/g" ./common/scripts/setlocalversion
+         sed -i '$s|echo "\$res"|echo "-${{ github.event.inputs.KERNEL_NAME }}"|g' ./common/scripts/setlocalversion
              
       - name: 拉取afdo
         run: |
