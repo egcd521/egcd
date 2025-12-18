@@ -158,13 +158,6 @@ jobs:
          else
          echo "❗ lz4kd patch not found for kernel version ${{ inputs.KERNEL_VERSION }}"
          fi
-
-      - name: Set CONFIG_LOCALVERSION
-        if: ${{ inputs.local_version != '-4k' }}
-        run: |
-         cd kernel_workspace/kernel_platform
-         echo "Using local_version: ${{ inputs.local_version }}"
-         sed -i "s/CONFIG_LOCALVERSION=\"-4k\"/CONFIG_LOCALVERSION=\"${{ inputs.local_version }}\"/" ./common/arch/arm64/configs/gki_defconfig
            
       - name: Add SUSFS Configuration Settings
         run: |
@@ -217,7 +210,6 @@ jobs:
       - name: Add make name
         run: |
          cd kernel_workspace/kernel_platform
-         sed -i '208s|echo ".*"|echo "${KERNELVERSION}${scm_version}${config_localversion}"|' common/scripts/setlocalversion
          sed -i "s/\${scm_version}/${{ github.event.inputs.KERNEL_NAME }}/g" ./common/scripts/setlocalversion
              
       - name: 拉取afdo
