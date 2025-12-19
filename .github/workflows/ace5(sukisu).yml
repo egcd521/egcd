@@ -21,7 +21,7 @@ on:
       KERNEL_NAME:
         description: "修改内核名称"
         required: true
-        default: '-android14-11-0-gac2e718ebee6'
+        default: 'android14-11-o-gac2e718ebee6'
       ENABLE_KPM:
         description: "启用kpm"
         required: false
