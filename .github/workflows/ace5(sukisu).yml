@@ -115,7 +115,7 @@ jobs:
          cd KernelSU
          # 计算 KSU_VERSION
          KSU_LOCAL_COUNT=$(git rev-list --count builtin 2>/dev/null || echo 0)
-         KSU_VERSION=$(expr 42483 + "$KSU_LOCAL_COUNT" - 2242)
+         KSU_VERSION=$(expr 43065 + "$KSU_LOCAL_COUNT" - 2815)
          echo "KSUVER=$KSU_VERSION" >> "$GITHUB_ENV"
          export KSU_VERSION="$KSU_VERSION"
          echo "✅ KSU_VERSION=$KSU_VERSION"
