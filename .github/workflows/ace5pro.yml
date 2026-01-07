@@ -1,0 +1,290 @@
+name: ace5pro(sukisu）
+on:
+  workflow_dispatch:
+    inputs:
+      CPU:
+        description: "分支"
+        required: true
+        default: 'sm8750'
+      FEIL:
+        description: "配置文件"
+        required: true
+        default: 'oneplus_ace5_pro'
+      CPUD:
+        description: "处理器代号"
+        required: true
+        default: 'sun'
+      ANDROID_VERSION:
+        description: "内核安卓版本"
+        required: true
+        default: 'android15'
+      KERNEL_VERSION:
+        description: "内核版本"
+        required: true
+        default: '6.6'
+      KERNEL_NAME:
+        description: "修改内核名称"
+        required: true
+        default: '-android15-8-g29d86c5fc9dd-abogki428889875'
+      local_version:
+        description: '输入内核后缀名（如-v8）'
+        required: false
+        default: '-4k'
+        type: string
+      remove_default_4k:
+        description: '是否删除默认的 -4k 后缀？（勾选则删除）'
+        required: false
+        default: false
+        type: boolean
+      UNICODE_BYPASS:
+        type: boolean
+        description: "是否添加Unicode零宽绕过修复与内存优化补丁？"
+        required: true
+        default: false
+        
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
+      CCACHE_NOHASHDIR: "true"
+      CCACHE_HARDLINK: "true"
+      TOKEN: ${{ secrets.TOKEN }}
+    steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 8192
+          temp-reserve-mb: 2048
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          
+      - name: Configure Git
+        run: |
+         git config --global user.name "build"
+         git config --global user.email "2106456897@qq.com"
+
+      # 1. 拉取仓库  
+      - name: Checkout  
+        uses: actions/checkout@v4  
+
+      # 2. 安装构建依赖（包括 ccache）  
+      - name: Install Dependencies  
+        run: |  
+         sudo apt-get update  
+         sudo apt-get install -y python3 git curl ccache libelf-dev
+         sudo apt-get install -y dos2unix
+
+      # 3. 恢复 ccache 缓存  
+      - name: Restore ccache
+        uses: actions/cache@v3
+        with:
+         path: /home/runner/.ccache
+         key: ${{ runner.os }}-${{ github.repository }}-v1无root
+         restore-keys: |
+          ${{ runner.os }}-${{ github.repository }}-
+          ${{ runner.os }}-
+          ccache-
+
+      # 4. 设置 ccache 环境变量  
+      - name: Setup ccache environment  
+        run: |  
+         echo "CCACHE_DIR=/home/runner/.ccache" >> $GITHUB_ENV  
+         echo "CCACHE_MAXSIZE=8G" >> $GITHUB_ENV  
+         echo "CCACHE_COMPILERCHECK=%compiler% -dumpmachine; %compiler% -dumpversion" >> $GITHUB_ENV  
+         echo "CCACHE_NOHASHDIR=true" >> $GITHUB_ENV  
+         echo "CCACHE_HARDLINK=true" >> $GITHUB_ENV  
+         echo "CCACHE_BASEDIR=${{ github.workspace }}" >> $GITHUB_ENV  
+         echo "CCACHE_LOGFILE=${{ github.workspace }}/ccache.log" >> $GITHUB_ENV  
+         echo "/usr/lib/ccache" >> $GITHUB_PATH  
+         
+      - name: Show ccache stats
+        run: |
+         ccache -s || true
+
+      - name: Install repo tool
+        run: |
+         curl https://storage.googleapis.com/git-repo-downloads/repo > ~/repo
+         chmod a+x ~/repo
+         sudo mv ~/repo /usr/local/bin/repo
+
+      - name: Initialize repo and sync
+        run: |
+         mkdir kernel_workspace && cd kernel_workspace
+         repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ github.event.inputs.CPU }} -m ${{ github.event.inputs.FEIL }}.xml --depth=1
+         repo --trace sync -c -j$(nproc --all) --no-tags
+         rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
+         rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
+         
+      - name: Set up SUSFS & apply patches
+        run: |
+         set -e
+
+         cd kernel_workspace
+         git clone https://$TOKEN@github.com/egcd521/111.git
+         cd kernel_platform
+         cp ../111/boot.patch ./common/
+         cd ./common
+         PATCH_FILE=50_add_susfs_in_gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}.patch
+         if [[ -f "$PATCH_FILE" ]]; then
+         #sed -i 's/-32,12 +32,38/-32,11 +32,37/g' "$PATCH_FILE"
+         #sed -i '/#include <trace\/hooks\/fs.h>/d' "$PATCH_FILE"
+         patch -p1 < "$PATCH_FILE" || true
+         fi
+         patch -s -p1 -F 3 < boot.patch
+         echo "✅ SUSFS 和 boot patch 应用完成"
+         
+      - name: Apply UNICODE_BYPASS and MEMORY_OPT
+        if: ${{ github.event.inputs.UNICODE_BYPASS == 'true' }}
+        run: |
+          PATCH_DIR="${GITHUB_WORKSPACE}/kernel_workspace/Action-Build/patches"
+          cd kernel_workspace/kernel_platform/common
+          patch -p1 --forward < "${PATCH_DIR}/optimized_mem_operations.patch"
+          patch -p1 --forward < "${PATCH_DIR}/file_struct_8bytes_align.patch"
+          patch -p1 --forward < "${PATCH_DIR}/reduce_cache_pressure.patch"
+          if [ "$KV1" -lt 6 ]; then
+            patch -p1 --forward < "${PATCH_DIR}/clear_page_16bytes_align.patch"
+            echo "Patching unicode!"
+            patch -p1 --forward < "${PATCH_DIR}/unicode_bypass_fix_6.1-.patch"
+          else
+            cat "${PATCH_DIR}/clear_page_16bytes_align.patch" | sed -e 's/SYM_FUNC_START_PI(clear_page)/SYM_FUNC_START_PI(__pi_clear_page)/' | patch -p1 -F3 --forward
+            echo "Patching unicode!"
+            patch -p1 --forward < "${PATCH_DIR}/unicode_bypass_fix_6.1+.patch"
+          fi
+
+      - name: Set CONFIG_LOCALVERSION
+        if: ${{ inputs.local_version != '-4k' }}
+        run: |
+         cd kernel_workspace/kernel_platform
+         echo "Using local_version: ${{ inputs.local_version }}"
+         sed -i "s/CONFIG_LOCALVERSION=\"-4k\"/CONFIG_LOCALVERSION=\"${{ inputs.local_version }}\"/" ./common/arch/arm64/configs/gki_defconfig
+           
+      - name: Add SUSFS Configuration Settings
+        run: |
+          cd kernel_workspace/kernel_platform
+          # 向 gki_defconfig 中追加配置
+          cat <<EOF >> ./common/arch/arm64/configs/gki_defconfig
+          # 启用 ThinLTO 与 Polly 优化器
+          CONFIG_LTO_CLANG=y
+          CONFIG_LTO_CLANG_THIN=y
+          CONFIG_LTO_POLLY=y
+          # 启用压缩算法支持
+          CONFIG_CRYPTO_LZ4HC=y
+          CONFIG_CRYPTO_LZ4K=y
+          CONFIG_CRYPTO_LZ4KD=y
+          CONFIG_CRYPTO_842=y
+          EOF
+          # 移除构建流程中的 check_defconfig 校验
+          sed -i 's/check_defconfig//' ./common/build.config.gki
+          # 提交更改（可选）
+          cd common
+          git add -A
+          git commit -a -m "BUILD Kernel with Polly, BBR, KSU, SUSFS and compression configs"
+
+      - name: Add make name
+        run: |
+         cd kernel_workspace/kernel_platform
+         sed -i '208s|echo ".*"|echo "${KERNELVERSION}${scm_version}${config_localversion}"|' common/scripts/setlocalversion
+         sed -i "s/\${scm_version}/${{ github.event.inputs.KERNEL_NAME }}/g" ./common/scripts/setlocalversion
+         
+      - name: 设置 CONFIG_LOCALVERSION
+        run: |
+         cd kernel_workspace/kernel_platform
+         echo 'CONFIG_LOCALVERSION="${{ github.event.inputs.local_version }}"' >> ./common/arch/arm64/configs/gki_defconfig
+
+      - name: 删除 CONFIG_LOCALVERSION 中的 -4k 后缀（如果勾选）
+        if: ${{ fromJSON(github.event.inputs.remove_default_4k) }}
+        run: |
+         cd kernel_workspace/kernel_platform
+         sed -i 's/-4k//' ./common/arch/arm64/configs/gki_defconfig
+    
+      - name: 拉取并集成 sched_ext 调度器
+        run: |
+         set -e
+         cd kernel_workspace/kernel_platform/common
+         git clone https://github.com/Numbersf/SCHED_PATCH.git -b "${{ github.event.inputs.CPU }}"
+         echo "正在拉取风驰补丁"
+         cp "./SCHED_PATCH/fengchi_${{ github.event.inputs.FEIL }}.patch" ./
+         if [[ -f "fengchi_${{ github.event.inputs.FEIL }}.patch" ]]; then
+         echo "正在打风驰补丁"
+         dos2unix "fengchi_${{ github.event.inputs.FEIL }}.patch"
+         patch -p1 -F 3 < "fengchi_${{ github.event.inputs.FEIL }}.patch"
+         echo "✅ fengchi_patch 完成"
+         else
+         echo "❌ 未匹配到补丁，风驰内核暂未支持你的机型，请关闭后重试"
+         exit 11
+         fi
+         
+      - name: 拉取afdo
+        run: |
+          cd kernel_workspace/kernel_platform/
+          git clone https://github.com/egcd521/afdo.git
+            
+      - name: Set build timestamp
+        run: |         
+         export SOURCE_DATE_EPOCH=$(date -d "Tue Jul  1 19:48:18 UTC 2025" +%s)
+         echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" >> $GITHUB_ENV
+
+      - name: Build Kernel
+        run: |
+         # 加入 clang 到 PATH
+         export PATH="${{ github.workspace }}/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
+         # 加入 ccache 到 PATH
+         export PATH="/usr/lib/ccache:$PATH" 
+
+         # 设置固定内核构建时间
+         export BUILD_VERSION=1
+         export KERNEL_TIME="Tue Jul  1 19:48:18 UTC 2025"
+         export KBUILD_BUILD_TIMESTAMP="$KERNEL_TIME"
+         export SOURCE_DATE_EPOCH=$(date -d "$KERNEL_TIME" +%s)
+         # 设置 AFDO 配置文件路径
+         export AFDO_PROFILE="${{ github.workspace }}/kernel_workspace/kernel_platform/afdo/kernel.afdo"
+         if [ ! -f "$AFDO_PROFILE" ]; then
+           echo "Error: AFDO profile not found at $AFDO_PROFILE"
+         exit 1
+         fi
+
+         # 打印验证
+         echo "KERNEL_TIME = $KERNEL_TIME"
+         echo "SOURCE_DATE_EPOCH = $SOURCE_DATE_EPOCH"
+         echo "Using KCFLAGS: -Wno-error -fauto-profile=$AFDO_PROFILE"
+
+         # 设置一些通用参数（便于后续维护）
+         export KCFLAGS="-Wno-error -fauto-profile=$AFDO_PROFILE"
+         export MAKE_ARGS="LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
+         RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
+         PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
+         LD=ld.lld HOSTLD=ld.lld O=out SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}"
+
+         # 进入源码目录
+         cd kernel_workspace/kernel_platform/common
+
+         # 执行 defconfig
+         make -j$(nproc) $MAKE_ARGS gki_defconfig
+
+         # 编译全部目标
+         make -j$(nproc) $MAKE_ARGS all
+
+         # 创建输出目录并复制 Image
+         mkdir -p ../dist
+         cp out/arch/arm64/boot/Image ../dist/
+
+      - name: 验证内核构建时间
+        run: |
+         strings kernel_workspace/kernel_platform/common/out/vmlinux | grep "UTC"
+
+      - name: Prepare AnyKernel3 package
+        run: |
+          cd kernel_workspace/kernel_platform/dist
+          git clone https://github.com/egcd123/AnyKernel3.git AnyKernel3 --depth=1
+          rm -rf AnyKernel3/.git
+          rm -f AnyKernel3/push.sh
+          cp Image AnyKernel3/
+
+      - name: Upload AnyKernel3 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AnyKernel3_oneplus_ace5pro
+          path: kernel_workspace/kernel_platform/dist/AnyKernel3/*
