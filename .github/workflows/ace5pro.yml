@@ -124,6 +124,7 @@ jobs:
 
          cd kernel_workspace
          git clone https://$TOKEN@github.com/egcd521/111.git
+         git clone https://github.com/egcd521/egcd.git
          cd kernel_platform
          cp ../111/boot.patch ./common/
          cd ./common
@@ -139,7 +140,7 @@ jobs:
       - name: Apply UNICODE_BYPASS and MEMORY_OPT
         if: ${{ github.event.inputs.UNICODE_BYPASS == 'true' }}
         run: |
-          PATCH_DIR="${GITHUB_WORKSPACE}/kernel_workspace/patches"
+          PATCH_DIR="${GITHUB_WORKSPACE}/kernel_workspace/egcd/patches"
           cd kernel_workspace/kernel_platform/common
           patch -p1 --forward < "${PATCH_DIR}/optimized_mem_operations.patch"
           patch -p1 --forward < "${PATCH_DIR}/file_struct_8bytes_align.patch"
