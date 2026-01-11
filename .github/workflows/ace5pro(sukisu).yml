@@ -197,24 +197,6 @@ jobs:
             patch -p1 --forward < "${PATCH_DIR}/unicode_bypass_fix_6.1+.patch"
           fi
          
-      - name: Apply UNICODE_BYPASS and MEMORY_OPT
-        if: ${{ github.event.inputs.UNICODE_BYPASS == 'true' }}
-        run: |
-          PATCH_DIR="${GITHUB_WORKSPACE}/kernel_workspace/Action-Build/patches"
-          cd kernel_workspace/kernel_platform/common
-          patch -p1 --forward < "${PATCH_DIR}/optimized_mem_operations.patch"
-          patch -p1 --forward < "${PATCH_DIR}/file_struct_8bytes_align.patch"
-          patch -p1 --forward < "${PATCH_DIR}/reduce_cache_pressure.patch"
-          if [ "$KV1" -lt 6 ]; then
-            patch -p1 --forward < "${PATCH_DIR}/clear_page_16bytes_align.patch"
-            echo "Patching unicode!"
-            patch -p1 --forward < "${PATCH_DIR}/unicode_bypass_fix_6.1-.patch"
-          else
-            cat "${PATCH_DIR}/clear_page_16bytes_align.patch" | sed -e 's/SYM_FUNC_START_PI(clear_page)/SYM_FUNC_START_PI(__pi_clear_page)/' | patch -p1 -F3 --forward
-            echo "Patching unicode!"
-            patch -p1 --forward < "${PATCH_DIR}/unicode_bypass_fix_6.1+.patch"
-          fi
-
       - name: Apply lz4kd Patches
         run: |
          set -e
