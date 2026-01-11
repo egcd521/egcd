@@ -157,6 +157,7 @@ jobs:
          git clone --depth=1 https://github.com/SukiSU-Ultra/SukiSU_patch.git
          git clone https://github.com/egcd521/kernel_patches.git
          git clone https://$TOKEN@github.com/egcd521/111.git
+         git clone https://github.com/egcd521/egcd.git
          cd kernel_platform
          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ inputs.ANDROID_VERSION }}-${{ inputs.KERNEL_VERSION }}.patch ./common/ || true
          mkdir -p ./common/fs ./common/include/linux ./common/lib ./common/crypto
