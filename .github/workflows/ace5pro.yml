@@ -9,7 +9,7 @@ on:
       FEIL:
         description: "配置文件"
         required: true
-        default: 'oneplus_ace5_pro'
+        default: 'oneplus_ace5_pro_b'
       CPUD:
         description: "处理器代号"
         required: true
@@ -25,7 +25,7 @@ on:
       KERNEL_NAME:
         description: "修改内核名称"
         required: true
-        default: '-android15-8-g29d86c5fc9dd-abogki428889875'
+        default: -android15-8-gf4dc45704e54-abogki446052083'
       local_version:
         description: '输入内核后缀名（如-v8）'
         required: false
@@ -219,7 +219,7 @@ jobs:
             
       - name: Set build timestamp
         run: |         
-         export SOURCE_DATE_EPOCH=$(date -d "Tue Jul  1 19:48:18 UTC 2025" +%s)
+         export SOURCE_DATE_EPOCH=$(date -d "Fri Sep 19 06:13:40 UTC 2025" +%s)
          echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" >> $GITHUB_ENV
 
       - name: Build Kernel
@@ -231,7 +231,7 @@ jobs:
 
          # 设置固定内核构建时间
          export BUILD_VERSION=1
-         export KERNEL_TIME="Tue Jul  1 19:48:18 UTC 2025"
+         export KERNEL_TIME="Fri Sep 19 06:13:40 UTC 2025"
          export KBUILD_BUILD_TIMESTAMP="$KERNEL_TIME"
          export SOURCE_DATE_EPOCH=$(date -d "$KERNEL_TIME" +%s)
          # 设置 AFDO 配置文件路径
