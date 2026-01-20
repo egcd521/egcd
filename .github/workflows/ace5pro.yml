@@ -25,7 +25,7 @@ on:
       KERNEL_NAME:
         description: "修改内核名称"
         required: true
-        default: -android15-8-gf4dc45704e54-abogki446052083'
+        default: '-android15-8-gf4dc45704e54-abogki446052083'
       local_version:
         description: '输入内核后缀名（如-v8）'
         required: false
